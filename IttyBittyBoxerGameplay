@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Punch-Out: Modern RPG</title>
+    <title>Itty Bitty Boxer: Modern RPG</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -41,7 +41,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            image-rendering: pixelated; 
+            image-rendering: pixelated;
         }
 
         .ui-layer {
@@ -53,7 +53,6 @@
             pointer-events: none;
             display: flex;
             flex-direction: column;
-            z-index: 100;
         }
 
         .hidden { display: none !important; }
@@ -67,45 +66,79 @@
         }
 
         .hud-panel {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.7);
             padding: 12px;
             border: 2px solid #555;
             border-radius: 4px;
             box-shadow: 0 4px 0 rgba(0,0,0,0.5);
         }
 
-        .bars { width: 240px; display: flex; flex-direction: column; gap: 8px; }
+        .bars { width: 250px; display: flex; flex-direction: column; gap: 8px; }
         .bar-bg { width: 100%; height: 16px; background: #222; border: 2px solid #fff; position: relative; }
         .bar-fill { height: 100%; transition: width 0.1s ease-out; }
-        
+       
         #p-hp-fill { background: #ff2a4b; width: 100%; }
         #p-block-fill { background: #00d2ff; width: 100%; }
         #e-hp-fill { background: #ff2a4b; width: 100%; transform-origin: right; float: right; }
-        
-        .label { font-size: 10px; text-shadow: 1px 1px #000; letter-spacing: 1px; color: #fff;}
+        #e-block-fill { background: #00d2ff; width: 100%; transform-origin: right; float: right; }
+       
+        .label { font-size: 10px; text-shadow: 1px 1px #000; letter-spacing: 1px; margin-bottom: 4px; }
 
-        /* Fight Score */
-        #fight-score {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.8); padding: 10px 20px; border: 2px solid #f1c40f; border-radius: 4px;
+        /* Round Tracker */
+        #round-tracker {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #444;
         }
 
-        /* Wallet & Career Tracker */
-        .top-ui-box {
+        .round-sq {
+            width: 25px;
+            height: 25px;
+            border: 3px solid #333;
+            background: #111;
+        }
+
+        .round-sq.player-win { background: #00d2ff; border-color: #fff; box-shadow: 0 0 10px #00d2ff; }
+        .round-sq.enemy-win { background: #ff2a4b; border-color: #fff; box-shadow: 0 0 10px #ff2a4b; }
+        .round-sq.center { width: 35px; height: 35px; border-color: #f1c40f; }
+        .round-sq.center.gold { background: #f1c40f; box-shadow: 0 0 15px #f1c40f; }
+
+        /* Wallet */
+        .wallet-box {
             position: absolute;
             top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
-            padding: 10px 15px;
-            border: 2px solid #555;
-            color: #fff;
-            font-size: 12px;
+            padding: 12px 20px;
+            border: 2px solid #f1c40f;
+            color: #f1c40f;
+            font-size: 14px;
             border-radius: 4px;
-            text-shadow: 1px 1px #000;
-            z-index: 50;
         }
-        
-        #wallet-ui { left: 50%; transform: translateX(-50%); border-color: #f1c40f; color: #f1c40f; }
-        #career-ui { right: 15px; text-align: right; }
+
+        /* Career Tracker */
+        #best-career-ui {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.8);
+            padding: 12px;
+            border: 2px solid #00d2ff;
+            color: #00d2ff;
+            font-size: 10px;
+            border-radius: 4px;
+            text-align: right;
+            line-height: 1.4;
+        }
 
         /* Interaction Prompt */
         #interact-prompt {
@@ -140,7 +173,6 @@
             text-align: center;
             width: 600px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.9);
-            z-index: 200;
         }
 
         .shop-grid {
@@ -151,14 +183,34 @@
             margin-bottom: 20px;
         }
 
-        .shop-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .shop-tabs button.active { background: #f1c40f; color: #000; border-color: #fff; }
+        .shop-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-        .color-preview { width: 30px; height: 30px; border: 2px solid #fff; border-radius: 50%; margin-bottom: 10px; }
+        .shop-tabs button.active {
+            background: #f1c40f;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
 
         .shop-item {
-            background: #111; border: 2px solid #555; padding: 15px;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            background: #111;
+            border: 2px solid #555;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         .shop-item h3 { font-size: 12px; margin: 0; color: #aaa; line-height: 1.4; }
@@ -166,12 +218,20 @@
         .shop-item .cost { font-size: 14px; color: #f1c40f; }
 
         button {
-            font-family: 'Press Start 2P', monospace; background: #444; color: white;
-            border: 2px solid #666; padding: 12px; font-size: 12px; cursor: pointer;
-            width: 100%; transition: all 0.2s;
+            font-family: 'Press Start 2P', monospace;
+            background: #444;
+            color: white;
+            border: 2px solid #666;
+            padding: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
         }
+
         button:hover:not(:disabled) { background: #f1c40f; color: #000; border-color: #fff; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .close-btn { background: #ff2a4b; margin-top: 20px; width: auto; padding: 10px 30px;}
         .close-btn:hover:not(:disabled) { background: #ff5271; }
 
@@ -180,7 +240,6 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
             justify-content: center; align-items: center; pointer-events: auto; text-align: center;
-            z-index: 300;
         }
 
         h1 { font-size: 40px; color: var(--primary); text-shadow: 4px 4px #000; margin-bottom: 10px; }
@@ -188,10 +247,15 @@
 
         /* Tutorial/Controls */
         .controls-info {
-            position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.85);
-            padding: 8px 12px; font-size: 7px; line-height: 1.6; color: #ccc; 
-            border: 1px solid #444; text-align: left; border-radius: 4px;
-            z-index: 50;
+            position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.8);
+            padding: 12px; font-size: 9px; line-height: 1.8; color: #ccc; border: 2px solid #444; text-align: left; border-radius: 4px;
+        }
+
+        /* FULLSCREEN OVERRIDES */
+        #game-wrapper {
+            width: 100vw !important;
+            height: 100vh !important;
+            box-shadow: none !important;
         }
     </style>
 </head>
@@ -204,35 +268,36 @@
 
     <!-- Fight HUD -->
     <div class="ui-layer hidden" id="fight-hud">
+        <div id="round-tracker">
+            <div id="r-p1" class="round-sq"></div>
+            <div id="r-p2" class="round-sq"></div>
+            <div id="r-mid" class="round-sq center"></div>
+            <div id="r-e2" class="round-sq"></div>
+            <div id="r-e1" class="round-sq"></div>
+        </div>
         <div id="hud">
             <div class="hud-panel bars">
                 <div class="label">YOU</div>
                 <div class="bar-bg"><div id="p-hp-fill" class="bar-fill"></div></div>
                 <div class="bar-bg" style="height: 10px;"><div id="p-block-fill" class="bar-fill"></div></div>
             </div>
-            
-            <div id="fight-score">
-                <div style="font-size: 8px; color: #f1c40f; margin-bottom: 8px;">FIRST TO 3</div>
-                <div style="font-size: 24px; text-shadow: 2px 2px #000;">
-                    <span id="score-player" style="color: #00d2ff">0</span> - <span id="score-enemy" style="color: #ff2a4b">0</span>
-                </div>
-            </div>
-
             <div class="hud-panel bars" style="align-items: flex-end;">
                 <div class="label" id="enemy-name">OPPONENT</div>
                 <div class="bar-bg"><div id="e-hp-fill" class="bar-fill"></div></div>
+                <div class="bar-bg" style="height: 10px;"><div id="e-block-fill" class="bar-fill"></div></div>
             </div>
         </div>
     </div>
 
-    <!-- Wallet & Stats -->
-    <div id="wallet-ui" class="top-ui-box">
+    <!-- Wallet -->
+    <div id="wallet-ui" class="wallet-box">
         $$ <span id="money-display">0</span>
     </div>
-    
-    <div id="career-ui" class="top-ui-box">
-        <div style="color: #f1c40f; margin-bottom: 5px;">Day <span id="current-day">1</span></div>
-        <div style="font-size: 8px; color: #ccc;">Best Career: <span id="best-day">0</span> days</div>
+
+    <!-- Best Career Display -->
+    <div id="best-career-ui">
+        Best Career: <span id="best-career-val">0</span> days<br>
+        Current: <span id="current-career-val">0</span> days
     </div>
 
     <!-- Shop Menu -->
@@ -244,7 +309,7 @@
             <button id="btn-tab-gloves" onclick="switchTab('gloves')">GLOVES</button>
         </div>
         <p style="font-size: 10px; color: #ccc; margin-bottom: 20px;">Train and improve your stats.</p>
-        
+       
         <div id="tab-stats" class="shop-grid">
             <div class="shop-item">
                 <h3>MAX<br>HEALTH</h3>
@@ -274,21 +339,21 @@
 
     <!-- Start Screen -->
     <div id="start-screen" class="screen">
-        <h1>PIXEL PUNCH-OUT</h1>
-        <h2 style="color: #fff; font-size: 16px;">THE LOBBY BRAWL</h2>
+        <h1>Itty Bitty Boxer</h1>
+        <h2 style="color: #fff; font-size: 16px;">A Not-So-realistic boxing experience</h2>
         <button onclick="startGame()" style="width: 200px; padding: 20px; font-size: 16px; margin-top: 30px; background: var(--primary); border-color: #ff5271;">ENTER GYM</button>
     </div>
 
     <!-- Game Over Screen -->
     <div id="game-over-screen" class="screen hidden">
-        <h1>GAME OVER</h1>
-        <p style="font-size: 12px; margin-bottom: 30px;">Your boxing career has come to an end.</p>
-        <button onclick="startNewRun()" style="width: 250px; padding: 15px;">START NEW RUN</button>
+        <h1 style="color: #ff2a4b;">CAREER OVER</h1>
+        <p style="font-size: 12px; margin-bottom: 30px;">Your run has ended. All progress is lost.</p>
+        <button onclick="restartCareer()" style="width: 250px; padding: 15px;">START NEW CAREER</button>
     </div>
 
     <!-- Victory Screen -->
     <div id="win-screen" class="screen hidden">
-        <h1 style="color: #00d2ff;">MATCH WON!</h1>
+        <h1 style="color: #00d2ff;">VICTORY!</h1>
         <h2 id="win-reward">+$0</h2>
     </div>
 
@@ -297,7 +362,7 @@
         WASD to Move<br>
         F to Shop<br>
         Stand in Ring Corner to Fight<br><br>
-        <strong>COMBAT (FIRST TO 3):</strong><br>
+        <strong>COMBAT:</strong><br>
         WASD: Move<br>
         J: Light Jab<br>
         K: Heavy Hook<br>
@@ -308,7 +373,7 @@
 
 <script>
 /**
- * PIXEL PUNCH-OUT RPG
+ * Itty Bitty Boxer RPG
  * Engine: Custom Sprite Caching & Canvas Rendering
  */
 
@@ -316,11 +381,18 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
+// Resize for Fullscreen
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
 // UI Refs
 const uiInteract = document.getElementById('interact-prompt');
 const uiFightHud = document.getElementById('fight-hud');
 const uiWallet = document.getElementById('wallet-ui');
-const uiCareer = document.getElementById('career-ui');
 const uiMoney = document.getElementById('money-display');
 const uiShop = document.getElementById('shop-ui');
 const screens = {
@@ -332,32 +404,33 @@ const screens = {
 // Input
 const keys = {};
 const justPressed = {};
-window.addEventListener('keydown', e => { 
-    keys[e.code] = true; 
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
     if(!justPressed[e.code]) justPressed[e.code] = true;
 });
-window.addEventListener('keyup', e => { 
-    keys[e.code] = false; 
+window.addEventListener('keyup', e => {
+    keys[e.code] = false;
     justPressed[e.code] = false;
 });
 
 // Game State
-let gameState = 'START'; // START, LOBBY, QTE, FIGHT, ROUND_TRANSITION, GAMEOVER, WIN, SHOP
+let gameState = 'START'; // START, LOBBY, QTE, FIGHT, GAMEOVER, WIN, SHOP
 let lastTime = 0;
 
-// Economy & Progression
+// Economy & Upgrades
 let money = 0;
-let currentDays = 1;
-let bestDays = 0;
-
 let upgrades = { hp: 1, dmg: 1, block: 1 };
 const baseCosts = { hp: 50, dmg: 75, block: 40 };
 
-// Match Scoring
-let playerScore = 0;
-let enemyScore = 0;
+let currentCareerDays = 0;
+let bestCareerDays = 0;
 
 let activeTab = 'stats';
+
+// Round System
+let playerRoundsWon = 0;
+let enemyRoundsWon = 0;
+let fightInProgress = false;
 
 let ownedHair = ['#3dc1d3CLASSIC'];
 let equippedHair = '#3dc1d3';
@@ -386,12 +459,14 @@ const difficulties = {
     'EASY': { name: 'AMATEUR', color: '#2ecc71', hpM: 0.8, dmgM: 0.6, spdM: 0.8, reward: 50, aggro: 0.02, dodgeChance: 0.1, healRate: 0 },
     'MEDIUM': { name: 'CONTENDER', color: '#f1c40f', hpM: 1.2, dmgM: 1.0, spdM: 1.0, reward: 100, aggro: 0.05, dodgeChance: 0.3, healRate: 5 },
     'HARD': { name: 'CHAMPION', color: '#e67e22', hpM: 1.8, dmgM: 1.5, spdM: 1.2, reward: 250, aggro: 0.08, dodgeChance: 0.5, healRate: 10 },
-    'PRO': { name: 'LEGEND', color: '#e74c3c', hpM: 2.5, dmgM: 2.2, spdM: 1.4, reward: 600, aggro: 0.12, dodgeChance: 0.8, healRate: 20 }
+    'PRO': { name: 'LEGEND', color: '#e74c3c', hpM: 2.5, dmgM: 2.2, spdM: 1.4, reward: 600, aggro: 0.12, dodgeChance: 0.8, healRate: 20 },
+    'INSANE': { name: 'NIGHTMARE', color: '#8e44ad', hpM: 4.5, dmgM: 3.8, spdM: 1.7, reward: 1500, aggro: 0.18, dodgeChance: 0.9, healRate: 40 },
+    'IMPOSSIBLE': { name: 'GOD-TIER', color: '#ffffff', hpM: 12.0, dmgM: 9.0, spdM: 2.2, reward: 5000, aggro: 0.3, dodgeChance: 1.0, healRate: 150 }
 };
 
 let rings = [];
 let currentRing = null;
-const shopZone = { x: 450, y: 100, w: 160, h: 60 }; 
+const shopZone = { x: 450, y: 100, w: 160, h: 60 };
 let floatingTexts = [];
 
 // QTE System
@@ -425,9 +500,57 @@ function shadeColor(color, percent) {
     return "#"+RR+GG+BB;
 }
 
-function updateDaysUI() {
-    document.getElementById('current-day').innerText = currentDays;
-    document.getElementById('best-day').innerText = bestDays;
+// --- PERSISTENCE ---
+function saveGame() {
+    const saveData = {
+        money: money,
+        upgrades: upgrades,
+        ownedHair: ownedHair,
+        equippedHair: equippedHair,
+        equippedHairShape: equippedHairShape,
+        ownedGloves: ownedGloves,
+        equippedGlove: equippedGlove,
+        bestCareerDays: bestCareerDays,
+        currentCareerDays: currentCareerDays
+    };
+    localStorage.setItem('pixelPunchOut_save', JSON.stringify(saveData));
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('pixelPunchOut_save');
+    if (saved) {
+        const data = JSON.parse(saved);
+        money = data.money || 0;
+        upgrades = data.upgrades || { hp: 1, dmg: 1, block: 1 };
+        ownedHair = data.ownedHair || ['#3dc1d3CLASSIC'];
+        equippedHair = data.equippedHair || '#3dc1d3';
+        equippedHairShape = data.equippedHairShape || 'CLASSIC';
+        ownedGloves = data.ownedGloves || ['#c23616'];
+        equippedGlove = data.equippedGlove || '#c23616';
+        bestCareerDays = data.bestCareerDays || 0;
+        currentCareerDays = data.currentCareerDays || 0;
+       
+        uiMoney.innerText = money;
+        document.getElementById('best-career-val').innerText = bestCareerDays;
+        document.getElementById('current-career-val').innerText = currentCareerDays;
+    }
+}
+
+function resetProgress() {
+    money = 0;
+    upgrades = { hp: 1, dmg: 1, block: 1 };
+    currentCareerDays = 0;
+    ownedHair = ['#3dc1d3CLASSIC'];
+    equippedHair = '#3dc1d3';
+    equippedHairShape = 'CLASSIC';
+    ownedGloves = ['#c23616'];
+    equippedGlove = '#c23616';
+   
+    uiMoney.innerText = 0;
+    document.getElementById('current-career-val').innerText = 0;
+   
+    generateSprites();
+    saveGame();
 }
 
 // --- SPRITE GENERATION ENGINE ---
@@ -438,7 +561,7 @@ function buildSprite(name, width, height, scale, data, palette) {
     c.width = width * scale;
     c.height = height * scale;
     const cx = c.getContext('2d');
-    
+   
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             let char = data[y][x];
@@ -453,7 +576,7 @@ function buildSprite(name, width, height, scale, data, palette) {
 
 function generateSprites() {
     const scale = 3;
-    
+   
     const hairShapes = {
         'CLASSIC': [
             "   000000   ",
@@ -537,28 +660,6 @@ function generateSprites() {
         "  0000  "
     ];
 
-    const npcData = [
-        "  000000  ",
-        " 01111110 ",
-        "0111111110",
-        "0222222220",
-        "0222222220",
-        "0222222220",
-        " 02222220 ",
-        "  000000  "
-    ];
-
-    const deskData = [
-        "00000000000000000000",
-        "01111111111111111110",
-        "02222222222222222220",
-        "02222222222222222220",
-        "02233222222223322220",
-        "02233222222223322220",
-        "02222222222222222220",
-        "00000000000000000000"
-    ];
-
     let pColor1 = equippedHairShape === 'BALD' ? '#f8c291' : equippedHair;
     let pColor2 = shadeColor(pColor1, -20);
     buildSprite('pHead', 12, 10, scale, hairShapes[equippedHairShape], { '0': '#000', '1': pColor1, '2': pColor2 });
@@ -568,12 +669,9 @@ function generateSprites() {
     let eColor2 = shadeColor(eColor1, -20);
     buildSprite('eHead', 12, 10, scale, hairShapes[enemyHairShape], { '0': '#000', '1': eColor1, '2': eColor2 });
     buildSprite('eGlove', 8, 7, scale, gloveData, { '0': '#000', '1': enemyGlove, 'W': '#fff' });
-    
+   
     buildSprite('plant', 8, 8, scale, plantData, { '0': '#000', '1': '#2ecc71', '2': '#d35400' });
     buildSprite('bag', 8, 8, scale, bagData, { '0': '#000', '1': '#7f8c8d', '2': '#c0392b' });
-    
-    buildSprite('npc', 10, 8, scale, npcData, { '0': '#000', '1': '#2980b9', '2': '#f8c291' });
-    buildSprite('desk', 20, 8, scale, deskData, { '0': '#000', '1': '#8a3c20', '2': '#5c2a16', '3': '#3e1a0b' });
 
     if (!sprites['floor']) {
         const floorCanvas = document.createElement('canvas');
@@ -581,11 +679,11 @@ function generateSprites() {
         const fx = floorCanvas.getContext('2d');
         for(let y=0; y<64; y+=4) {
             for(let x=0; x<64; x+=4) {
-                let color = '#d7b57f'; 
-                if (y % 16 === 0) color = '#b59362'; 
-                else if ((y < 16 && x === 32) || (y >= 16 && y < 32 && x === 16) || (y >= 32 && y < 48 && x === 48) || (y >= 48 && x === 0)) color = '#b59362'; 
-                else if ((x + y * 3) % 17 === 0) color = '#e4c88f'; 
-                else if ((x * 2 + y) % 13 === 0) color = '#c19b6c'; 
+                let color = '#d7b57f';
+                if (y % 16 === 0) color = '#b59362';
+                else if ((y < 16 && x === 32) || (y >= 16 && y < 32 && x === 16) || (y >= 32 && y < 48 && x === 48) || (y >= 48 && x === 0)) color = '#b59362';
+                else if ((x + y * 3) % 17 === 0) color = '#e4c88f';
+                else if ((x * 2 + y) % 13 === 0) color = '#c19b6c';
                 fx.fillStyle = color;
                 fx.fillRect(x, y, 4, 4);
             }
@@ -599,9 +697,9 @@ function generateSprites() {
         const cx = carpetCanvas.getContext('2d');
         for(let y=0; y<32; y+=4) {
             for(let x=0; x<32; x+=4) {
-                let color = '#b33939'; 
-                if ((x+y) % 8 === 0) color = '#cd6133'; 
-                if (y < 4 || y >= 28) color = '#ffda79'; 
+                let color = '#b33939';
+                if ((x+y) % 8 === 0) color = '#cd6133';
+                if (y < 4 || y >= 28) color = '#ffda79';
                 cx.fillStyle = color;
                 cx.fillRect(x, y, 4, 4);
             }
@@ -617,25 +715,24 @@ class Character {
         this.x = x;
         this.y = y;
         this.isPlayer = isPlayer;
-        this.radius = 20; 
-        
+        this.radius = 20;
+       
         this.maxHp = 100;
-        this.fightMaxHp = undefined; 
+        this.fightMaxHp = undefined;
         this.hp = 100;
-        this.maxBlock = 50;
-        this.blockHealth = 50;
+        this.maxBlock = 30; // UPDATED: Base block is now 30
+        this.blockHealth = 30;
         this.baseDmg = 10;
         this.speed = 180;
-        
-        this.state = 'IDLE'; 
+       
+        this.state = 'IDLE';
         this.facingAngle = 0;
         this.animTime = 0;
-        
+       
         this.isBlockBroken = false;
         this.actionTimer = 0;
         this.dodgeCooldown = 0;
 
-        // Visual offsets
         this.lGloveExt = 0;
         this.rGloveExt = 0;
     }
@@ -652,19 +749,18 @@ class Character {
         }
 
         if (this.dodgeCooldown > 0) this.dodgeCooldown -= dt;
-        
+       
         if (this.actionTimer > 0) {
             this.actionTimer -= dt;
-            
-            // Animate punches
+           
             if (this.state === 'ATTACK_LIGHT' || this.state === 'ATTACK_HEAVY') {
                 let duration = this.state === 'LIGHT' ? 0.3 : 0.6;
                 let progress = 1 - (this.actionTimer / duration);
-                
+               
                 let ext = 0;
-                if (progress < 0.3) { ext = -10; } 
-                else if (progress < 0.6) { ext = 35; } 
-                else { ext = 35 * (1 - ((progress-0.6)/0.4)); } 
+                if (progress < 0.3) { ext = -10; }
+                else if (progress < 0.6) { ext = 35; }
+                else { ext = 35 * (1 - ((progress-0.6)/0.4)); }
 
                 if (this.state === 'ATTACK_LIGHT') this.lGloveExt = ext;
                 if (this.state === 'ATTACK_HEAVY') this.rGloveExt = ext;
@@ -679,16 +775,8 @@ class Character {
 
         if (this.state === 'BLOCKING') {
             this.lGloveExt = 5; this.rGloveExt = 5;
-            // Heal 1 HP/sec while blocking
             let max = this.fightMaxHp || this.maxHp;
-            if (this.hp < max) {
-                this.hp = Math.min(max, this.hp + 1 * dt);
-                this.healTick = (this.healTick || 0) + dt;
-                if (this.healTick > 1.0) {
-                    spawnText(this.x, this.y - 30, "+1 HP", "#2ecc71");
-                    this.healTick = 0;
-                }
-            }
+            this.hp = Math.min(max, this.hp + 1 * dt);
         } else if (!this.state.startsWith('ATTACK')) {
             this.lGloveExt = 0; this.rGloveExt = 0;
         }
@@ -711,23 +799,19 @@ class Character {
 
         let breath = this.state === 'IDLE' ? Math.sin(this.animTime * 4) * 1 : 0;
 
-        // Shadow
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
         ctx.beginPath(); ctx.ellipse(0, 0, 16, 16, 0, 0, Math.PI*2); ctx.fill();
 
-        // Gloves
         let lx = 14 + this.lGloveExt, ly = -18;
         let rx = 14 + this.rGloveExt, ry = 18 - glove.height;
-        
+       
         if (this.state === 'BLOCKING') { lx = 12; ly = -12; rx = 12; ry = 12 - glove.height; }
-        
+       
         ctx.drawImage(glove, lx, ly, glove.width, glove.height);
         ctx.drawImage(glove, rx, ry, glove.width, glove.height);
 
-        // Head (Hair/Skin Top)
         ctx.drawImage(head, -head.width/2 + breath, -head.height/2, head.width, head.height);
 
-        // Block Shield
         if (this.state === 'BLOCKING') {
             ctx.beginPath();
             ctx.arc(15, 0, 30, -Math.PI/2.5, Math.PI/2.5);
@@ -740,8 +824,8 @@ class Character {
     }
 
     performAttack(type) {
-        if (this.state.startsWith('ATTACK') || this.state === 'DODGING' || this.state === 'STUNNED') return;
-        
+        if (this.state.startsWith('ATTACK') || this.state === 'DODGING' || this.state === 'STUNNED' || !fightInProgress) return;
+       
         this.state = type === 'LIGHT' ? 'ATTACK_LIGHT' : 'ATTACK_HEAVY';
         let windup = type === 'LIGHT' ? 0.1 : 0.25;
         this.actionTimer = type === 'LIGHT' ? 0.3 : 0.6;
@@ -749,10 +833,10 @@ class Character {
         setTimeout(() => {
             if (gameState !== 'FIGHT' || this.state === 'STUNNED') return;
             let target = this.isPlayer ? enemy : player;
-            
+           
             let dist = MathUtils.dist(this.x, this.y, target.x, target.y);
             let reach = type === 'LIGHT' ? 70 : 90;
-            
+           
             let angleToTarget = Math.atan2(target.y - this.y, target.x - this.x);
             let angleDiff = Math.abs(angleToTarget - this.facingAngle);
             if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
@@ -765,10 +849,10 @@ class Character {
     }
 
     performDodge(side) {
-        if (this.dodgeCooldown > 0 || this.state === 'DODGING' || this.state.startsWith('ATTACK')) return;
+        if (this.dodgeCooldown > 0 || this.state === 'DODGING' || this.state.startsWith('ATTACK') || !fightInProgress) return;
         this.state = 'DODGING';
-        this.dodgeSide = side; 
-        this.actionTimer = 0.3; 
+        this.dodgeSide = side;
+        this.actionTimer = 0.3;
         this.dodgeCooldown = 0.8;
     }
 }
@@ -783,7 +867,7 @@ function applyHit(attacker, defender, damage, type) {
 
     if (defender.state === 'BLOCKING' && !defender.isBlockBroken) {
         defender.blockHealth -= damage * 1.8;
-        defender.hp -= damage * 0.1; 
+        defender.hp -= damage * 0.1;
         spawnText(hitX, hitY, "BLOCKED", "#00d2ff");
 
         if (defender.blockHealth <= 0) {
@@ -795,11 +879,9 @@ function applyHit(attacker, defender, damage, type) {
         }
     } else {
         defender.hp -= damage;
-        
         let pushStr = type === 'HEAVY' ? 25 : 10;
         defender.x += Math.cos(attacker.facingAngle) * pushStr;
         defender.y += Math.sin(attacker.facingAngle) * pushStr;
-        
         spawnText(hitX, hitY, "-" + Math.floor(damage), type === 'HEAVY' ? "#ff2a4b" : "#fff");
     }
 
@@ -810,16 +892,20 @@ function applyHit(attacker, defender, damage, type) {
 function generateRings() {
     rings = [];
     const padY = 400;
-    const padXs = [180, 450, 720];
+    const padXs = [canvas.width * 0.2, canvas.width * 0.5, canvas.width * 0.8];
     const ringSize = 220;
-    
-    let pLevel = upgrades.hp + upgrades.dmg + upgrades.block - 3; 
+   
+    let pLevel = upgrades.hp + upgrades.dmg + upgrades.block - 3;
 
     for(let i=0; i<3; i++) {
         let r = Math.random() * 100;
         let diff = 'EASY';
 
-        if (pLevel < 3) {
+        if (currentCareerDays > 15) {
+            if (r < 10) diff = 'PRO'; else if (r < 40) diff = 'INSANE'; else diff = 'IMPOSSIBLE';
+        } else if (currentCareerDays > 5) {
+            if (r < 20) diff = 'HARD'; else if (r < 60) diff = 'PRO'; else diff = 'INSANE';
+        } else if (pLevel < 3) {
             if (r > 80) diff = 'MEDIUM';
         } else if (pLevel < 8) {
             if (r < 30) diff = 'EASY'; else if (r < 80) diff = 'MEDIUM'; else diff = 'HARD';
@@ -838,17 +924,17 @@ function generateRings() {
 
 function updatePlayerStats() {
     player.maxHp = 100 + (upgrades.hp - 1) * 20;
-    player.fightMaxHp = undefined; 
+    player.fightMaxHp = undefined;
     player.hp = player.maxHp;
     player.baseDmg = 10 + (upgrades.dmg - 1) * 4;
-    player.maxBlock = 50 + (upgrades.block - 1) * 15;
+    player.maxBlock = 30 + (upgrades.block - 1) * 15; // UPDATED: base is 30
     player.blockHealth = player.maxBlock;
 }
 
 function startQTERound() {
     qte.key = qteKeys[Math.floor(Math.random() * qteKeys.length)];
-    qte.targetStart = Math.random() * Math.PI * 1.5; 
-    qte.targetEnd = qte.targetStart + Math.PI * 0.4; 
+    qte.targetStart = Math.random() * Math.PI * 1.5;
+    qte.targetEnd = qte.targetStart + Math.PI * 0.4;
     qte.angle = 0;
     qte.state = 'SPINNING';
     qte.timer = 0;
@@ -859,75 +945,9 @@ function endQTE() {
     gameState = 'FIGHT';
     player.fightMaxHp = player.maxHp + qte.bonus;
     player.hp = player.fightMaxHp;
-    
-    // MAKE HUD VISIBLE FOR THE FIGHT
     uiFightHud.classList.remove('hidden');
-    
+    fightInProgress = true;
     updateFightHUD();
-}
-
-function resetRound(playerWonRound) {
-    gameState = 'ROUND_TRANSITION';
-    
-    if (playerWonRound) {
-        playerScore++;
-        spawnText(450, 325, "ROUND WON!", "#2ecc71");
-    } else {
-        enemyScore++;
-        spawnText(450, 325, "ROUND LOST!", "#e74c3c");
-    }
-    
-    document.getElementById('score-player').innerText = playerScore;
-    document.getElementById('score-enemy').innerText = enemyScore;
-
-    if (playerScore >= 3) {
-        setTimeout(() => {
-            gameState = 'WIN';
-            let reward = currentRing.data.reward;
-            money += reward;
-            currentDays++;
-            bestDays = Math.max(bestDays, currentDays);
-            
-            uiMoney.innerText = money;
-            updateDaysUI();
-            
-            document.getElementById('win-reward').innerText = "+$" + reward;
-            screens.win.classList.remove('hidden');
-            uiFightHud.classList.add('hidden');
-            setTimeout(returnToLobby, 2500);
-        }, 1500);
-    } else if (enemyScore >= 3) {
-        setTimeout(() => {
-            gameState = 'GAMEOVER';
-            bestDays = Math.max(bestDays, currentDays);
-            updateDaysUI();
-            screens.over.classList.remove('hidden');
-            uiFightHud.classList.add('hidden');
-        }, 1500);
-    } else {
-        // Next Round Setup
-        setTimeout(() => {
-            player.hp = player.fightMaxHp || player.maxHp;
-            player.blockHealth = player.maxBlock;
-            enemy.hp = enemy.maxHp;
-            enemy.blockHealth = enemy.maxBlock;
-            
-            let h = currentRing.size / 2 - 40;
-            player.x = currentRing.x - h; 
-            player.y = currentRing.y + h;
-            player.facingAngle = -Math.PI/4;
-            
-            enemy.x = currentRing.x + h; 
-            enemy.y = currentRing.y - h;
-            enemy.facingAngle = Math.PI * 0.75;
-            
-            player.state = 'IDLE';
-            enemy.state = 'IDLE';
-
-            gameState = 'FIGHT';
-            updateFightHUD();
-        }, 2000);
-    }
 }
 
 // --- UPDATES ---
@@ -950,12 +970,11 @@ function updateLobby(dt) {
     player.x += vx * player.speed * dt;
     player.y += vy * player.speed * dt;
 
-    player.x = MathUtils.clamp(player.x, 30, 870);
-    player.y = MathUtils.clamp(player.y, 80, 620); 
+    player.x = MathUtils.clamp(player.x, 30, canvas.width - 30);
+    player.y = MathUtils.clamp(player.y, 80, canvas.height - 30);
 
     player.animTime += dt;
 
-    // Shop Interaction
     if (Math.abs(player.x - shopZone.x) < 100 && Math.abs(player.y - shopZone.y) < 80) {
         uiInteract.classList.remove('hidden');
         if (justPressed['KeyF']) { openShop(); justPressed['KeyF'] = false; }
@@ -963,11 +982,9 @@ function updateLobby(dt) {
         uiInteract.classList.add('hidden');
     }
 
-    // Ring Entry Check
     for (let r of rings) {
         let entryX = r.x - r.size/2 + 20;
         let entryY = r.y + r.size/2 - 20;
-        
         if (MathUtils.dist(player.x, player.y, entryX, entryY) < 35) {
             r.entryTimer += dt;
             if (r.entryTimer >= 2.0) {
@@ -981,32 +998,28 @@ function updateLobby(dt) {
 }
 
 function updateQTE(dt) {
-    currentRing.x = MathUtils.lerp(currentRing.x, 450, dt * 4);
-    currentRing.y = MathUtils.lerp(currentRing.y, 325, dt * 4);
+    currentRing.x = MathUtils.lerp(currentRing.x, canvas.width / 2, dt * 4);
+    currentRing.y = MathUtils.lerp(currentRing.y, canvas.height / 2, dt * 4);
     currentRing.size = MathUtils.lerp(currentRing.size, 650, dt * 4);
-    
+   
     let h = currentRing.size / 2 - 40;
-    player.x = currentRing.x - h; 
+    player.x = currentRing.x - h;
     player.y = currentRing.y + h;
-    enemy.x = currentRing.x + h; 
+    enemy.x = currentRing.x + h;
     enemy.y = currentRing.y - h;
 
     if (qte.state === 'SPINNING') {
         qte.angle += qte.speed * dt;
-        
         let pressedKey = null;
         for (let k of qteKeys) {
             if (justPressed[k]) { pressedKey = k; break; }
         }
-
-        // Spins twice (Math.PI * 4) before failing
-        if (qte.angle > Math.PI * 4) {
+        if (qte.angle > Math.PI * 2) {
             qte.state = 'MISS';
             qte.timer = 1.0;
             qte.bonus -= 10;
         } else if (pressedKey) {
-            let normalizedAngle = qte.angle % (Math.PI * 2);
-            if (pressedKey === qte.key && normalizedAngle >= qte.targetStart && normalizedAngle <= qte.targetEnd) {
+            if (pressedKey === qte.key && qte.angle >= qte.targetStart && qte.angle <= qte.targetEnd) {
                 qte.state = 'HIT';
                 qte.bonus += 10;
             } else {
@@ -1015,7 +1028,6 @@ function updateQTE(dt) {
             }
             qte.timer = 1.0;
         }
-        
         for (let k in justPressed) justPressed[k] = false;
     } else if (qte.state === 'WAIT') {
         qte.timer -= dt;
@@ -1034,43 +1046,38 @@ function updateQTE(dt) {
 }
 
 function updateFight(dt) {
-    currentRing.x = MathUtils.lerp(currentRing.x, 450, dt * 4);
-    currentRing.y = MathUtils.lerp(currentRing.y, 325, dt * 4);
+    currentRing.x = MathUtils.lerp(currentRing.x, canvas.width / 2, dt * 4);
+    currentRing.y = MathUtils.lerp(currentRing.y, canvas.height / 2, dt * 4);
     currentRing.size = MathUtils.lerp(currentRing.size, 650, dt * 4);
 
-    if (player.state !== 'ATTACK_LIGHT' && player.state !== 'ATTACK_HEAVY' && player.state !== 'DODGING' && player.state !== 'STUNNED') {
+    if (fightInProgress && player.state !== 'ATTACK_LIGHT' && player.state !== 'ATTACK_HEAVY' && player.state !== 'DODGING' && player.state !== 'STUNNED') {
         let vx = 0, vy = 0;
-        
         if (keys['KeyW']) vy -= 1;
         if (keys['KeyS']) vy += 1;
         if (keys['KeyA']) vx -= 1;
         if (keys['KeyD']) vx += 1;
-        
         if (vx !== 0 || vy !== 0) {
             let len = Math.hypot(vx, vy);
             vx /= len; vy /= len;
         }
-
         player.facingAngle = Math.atan2(enemy.y - player.y, enemy.x - player.x);
-
         if (keys['KeyL'] && !player.isBlockBroken) {
             player.state = 'BLOCKING';
             vx *= 0.3; vy *= 0.3;
         } else {
             player.state = (vx !== 0 || vy !== 0) ? 'MOVING' : 'IDLE';
         }
-
         player.x += vx * player.speed * dt;
         player.y += vy * player.speed * dt;
 
         if (justPressed['KeyJ']) { player.performAttack('LIGHT'); justPressed['KeyJ'] = false; }
         if (justPressed['KeyK']) { player.performAttack('HEAVY'); justPressed['KeyK'] = false; }
-        
         if (justPressed['KeyQ']) { player.performDodge(-1); justPressed['KeyQ'] = false; }
         if (justPressed['KeyE']) { player.performDodge(1); justPressed['KeyE'] = false; }
     }
 
-    if (enemy.state !== 'ATTACK_LIGHT' && enemy.state !== 'ATTACK_HEAVY' && enemy.state !== 'DODGING' && enemy.state !== 'STUNNED') {
+    // Enemy AI
+    if (fightInProgress && enemy.state !== 'ATTACK_LIGHT' && enemy.state !== 'ATTACK_HEAVY' && enemy.state !== 'DODGING' && enemy.state !== 'STUNNED') {
         let dist = MathUtils.dist(enemy.x, enemy.y, player.x, player.y);
         enemy.facingAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
 
@@ -1082,8 +1089,7 @@ function updateFight(dt) {
                 spawnText(enemy.x, enemy.y - 30, "+HP", "#2ecc71");
                 enemy.healTimer = 0;
             }
-            
-            if (dist < 200) { 
+            if (dist < 200) {
                 enemy.state = 'MOVING';
                 enemy.x -= Math.cos(enemy.facingAngle) * enemy.speed * 1.1 * dt;
                 enemy.y -= Math.sin(enemy.facingAngle) * enemy.speed * 1.1 * dt;
@@ -1102,11 +1108,10 @@ function updateFight(dt) {
                     else enemy.performAttack('HEAVY');
                 } else if (Math.random() < 0.05 && !enemy.isBlockBroken) {
                     enemy.state = 'BLOCKING';
-                    enemy.actionTimer = 1.0; 
+                    enemy.actionTimer = 1.0;
                 }
             }
         }
-
         if (player.state.startsWith('ATTACK') && enemy.dodgeCooldown <= 0) {
             if (Math.random() < currentRing.data.dodgeChance * dt * 4) {
                 enemy.performDodge(Math.random() < 0.5 ? -1 : 1);
@@ -1129,74 +1134,95 @@ function updateFight(dt) {
     }
 
     let halfSize = (currentRing.size / 2) - 20;
-    player.x = MathUtils.clamp(player.x, currentRing.x - halfSize, currentRing.x + halfSize); 
+    player.x = MathUtils.clamp(player.x, currentRing.x - halfSize, currentRing.x + halfSize);
     player.y = MathUtils.clamp(player.y, currentRing.y - halfSize, currentRing.y + halfSize);
-    enemy.x = MathUtils.clamp(enemy.x, currentRing.x - halfSize, currentRing.x + halfSize); 
+    enemy.x = MathUtils.clamp(enemy.x, currentRing.x - halfSize, currentRing.x + halfSize);
     enemy.y = MathUtils.clamp(enemy.y, currentRing.y - halfSize, currentRing.y + halfSize);
 
     updateFightHUD();
     updateFloatingText(dt);
 
-    // End of Round Checks
-    if (player.hp <= 0) {
-        resetRound(false);
-    } else if (enemy.hp <= 0) {
-        resetRound(true);
+    // Round Check
+    if (fightInProgress) {
+        if (player.hp <= 0) {
+            enemyRoundsWon++;
+            fightInProgress = false;
+            updateRoundUI();
+            if (enemyRoundsWon >= 3) {
+                gameState = 'GAMEOVER';
+                screens.over.classList.remove('hidden');
+                uiFightHud.classList.add('hidden');
+                if (currentCareerDays > bestCareerDays) {
+                    bestCareerDays = currentCareerDays;
+                    document.getElementById('best-career-val').innerText = bestCareerDays;
+                }
+                saveGame();
+            } else {
+                spawnText(canvas.width/2, canvas.height/2, "ROUND LOST", "#ff2a4b");
+                setTimeout(resetRound, 2000);
+            }
+        } else if (enemy.hp <= 0) {
+            playerRoundsWon++;
+            fightInProgress = false;
+            updateRoundUI();
+            if (playerRoundsWon >= 3) {
+                gameState = 'WIN';
+                currentCareerDays++;
+                document.getElementById('current-career-val').innerText = currentCareerDays;
+                let reward = currentRing.data.reward;
+                money += reward;
+                uiMoney.innerText = money;
+                document.getElementById('win-reward').innerText = "+$" + reward;
+                screens.win.classList.remove('hidden');
+                uiFightHud.classList.add('hidden');
+                saveGame();
+                setTimeout(() => { returnToLobby(); }, 2500);
+            } else {
+                spawnText(canvas.width/2, canvas.height/2, "ROUND WON!", "#00d2ff");
+                setTimeout(resetRound, 2000);
+            }
+        }
     }
-}
-
-function updateTransition(dt) {
-    player.animTime += dt;
-    enemy.animTime += dt;
-    updateFloatingText(dt);
 }
 
 // --- DRAWING ---
 function drawRingShape(ctx, r, isFightingMode) {
     const s = r.size;
     const h = s/2;
-    
     ctx.fillStyle = '#6495ED';
     ctx.fillRect(r.x - h, r.y - h, s, s);
-
     ctx.strokeStyle = 'rgba(0,0,0,0.15)';
     ctx.lineWidth = s * 0.05;
     ctx.strokeRect(r.x - h + (s*0.025), r.y - h + (s*0.025), s - (s*0.05), s - (s*0.05));
-
     ctx.strokeStyle = '#f1f2f6';
     ctx.lineWidth = 3;
     ctx.strokeRect(r.x - h + 5, r.y - h + 5, s - 10, s - 10);
     ctx.strokeStyle = '#a4b0be';
     ctx.lineWidth = 1;
     ctx.strokeRect(r.x - h + 2, r.y - h + 2, s - 4, s - 4);
-    
     const padSize = s * 0.08;
-    ctx.fillStyle = '#ff4757'; 
+    ctx.fillStyle = '#ff4757';
     ctx.fillRect(r.x - h - 5, r.y - h - 5, padSize, padSize);
     ctx.fillRect(r.x + h - padSize + 5, r.y - h - 5, padSize, padSize);
-    ctx.fillStyle = '#2ed573'; 
+    ctx.fillStyle = '#2ed573';
     ctx.fillRect(r.x - h - 5, r.y + h - padSize + 5, padSize, padSize);
-    ctx.fillStyle = '#ff4757'; 
+    ctx.fillStyle = '#ff4757';
     ctx.fillRect(r.x + h - padSize + 5, r.y + h - padSize + 5, padSize, padSize);
 
     if (!isFightingMode && gameState === 'LOBBY') {
         let entryX = r.x - h + 20;
         let entryY = r.y + h - 20;
-        
         ctx.fillStyle = 'rgba(46, 204, 113, 0.3)';
         ctx.fillRect(entryX - 20, entryY - 20, 40, 40);
-        
         ctx.fillStyle = '#fff';
         ctx.font = '8px "Press Start 2P"';
         ctx.textAlign = 'center';
         ctx.fillText("ENTER", entryX, entryY - 25);
-        
         ctx.font = '12px "Press Start 2P"';
         ctx.fillStyle = '#111';
         ctx.fillText(r.difficulty, r.x, r.y);
         ctx.fillStyle = r.data.color;
         ctx.fillText(r.difficulty, r.x, r.y - 2);
-
         if (r.entryTimer > 0) {
             ctx.beginPath();
             ctx.arc(player.x, player.y - 40, 12, -Math.PI/2, (-Math.PI/2) + (r.entryTimer / 2) * Math.PI * 2);
@@ -1212,17 +1238,19 @@ function drawGame() {
         const pat = ctx.createPattern(sprites.floor, 'repeat');
         ctx.fillStyle = pat;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = '#3e2723';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    if (gameState === 'LOBBY' || gameState === 'SHOP' || gameState === 'QTE' || gameState === 'FIGHT' || gameState === 'ROUND_TRANSITION') {
+    if (gameState === 'LOBBY' || gameState === 'SHOP' || gameState === 'QTE' || gameState === 'FIGHT') {
         const carpetPat = ctx.createPattern(sprites.carpet, 'repeat');
         ctx.fillStyle = carpetPat;
-        ctx.fillRect(0, 100, canvas.width, 48); 
-        
+        ctx.fillRect(0, 100, canvas.width, 48);
         ctx.drawImage(sprites.plant, 40, 110, 24, 24);
-        ctx.drawImage(sprites.plant, 836, 110, 24, 24);
+        ctx.drawImage(sprites.plant, canvas.width - 64, 110, 24, 24);
         ctx.drawImage(sprites.bag, 120, 100, 24, 24);
-        ctx.drawImage(sprites.bag, 756, 100, 24, 24);
+        ctx.drawImage(sprites.bag, canvas.width - 144, 100, 24, 24);
     }
 
     ctx.fillStyle = '#212121';
@@ -1230,25 +1258,28 @@ function drawGame() {
     ctx.fillStyle = '#333';
     ctx.fillRect(0, 95, canvas.width, 5);
 
-    // Render Shop NPC & Desk
-    ctx.drawImage(sprites.npc, shopZone.x - 15, shopZone.y - 30);
-    ctx.drawImage(sprites.desk, shopZone.x - 30, shopZone.y - 12);
-    
+    ctx.fillStyle = '#5c2a16';
+    ctx.fillRect(shopZone.x - shopZone.w/2, shopZone.y - shopZone.h/2, shopZone.w, shopZone.h);
+    ctx.fillStyle = '#8a3c20';
+    ctx.fillRect(shopZone.x - shopZone.w/2 + 5, shopZone.y - shopZone.h/2 + 5, shopZone.w - 10, shopZone.h - 10);
+   
+    ctx.fillStyle = '#f8c291';
+    ctx.fillRect(shopZone.x - 12, shopZone.y - 25, 24, 24);
     ctx.fillStyle = '#fff';
-    ctx.font = '8px "Press Start 2P"';
+    ctx.font = '10px "Press Start 2P"';
     ctx.textAlign = 'center';
-    ctx.fillText("SHOP", shopZone.x, shopZone.y - 35);
+    ctx.fillText("GYM SHOP", shopZone.x, shopZone.y + 15);
 
     for (let r of rings) {
         if (r !== currentRing) drawRingShape(ctx, r, false);
     }
-    
+   
     if (currentRing) {
-        let isFightingMode = (gameState === 'QTE' || gameState === 'FIGHT' || gameState === 'ROUND_TRANSITION');
+        let isFightingMode = (gameState === 'QTE' || gameState === 'FIGHT');
         drawRingShape(ctx, currentRing, isFightingMode);
     }
 
-    if (gameState === 'FIGHT' || gameState === 'QTE' || gameState === 'ROUND_TRANSITION') {
+    if (gameState === 'FIGHT' || gameState === 'QTE') {
         if (player.y < enemy.y) { player.draw(ctx); enemy.draw(ctx); }
         else { enemy.draw(ctx); player.draw(ctx); }
     } else if (gameState === 'LOBBY' || gameState === 'SHOP') {
@@ -1261,22 +1292,20 @@ function drawGame() {
 function drawQTEOverlay(ctx) {
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
-    
     ctx.beginPath();
-    ctx.arc(450, 325, 100, 0, Math.PI * 2);
+    ctx.arc(canvas.width / 2, canvas.height / 2, 100, 0, Math.PI * 2);
     ctx.strokeStyle = '#222';
     ctx.lineWidth = 15;
     ctx.stroke();
 
     if (qte.state !== 'WAIT') {
         ctx.beginPath();
-        ctx.arc(450, 325, 100, qte.targetStart, qte.targetEnd);
+        ctx.arc(canvas.width / 2, canvas.height / 2, 100, qte.targetStart, qte.targetEnd);
         ctx.strokeStyle = '#2ecc71';
         ctx.lineWidth = 15;
         ctx.stroke();
-
         ctx.save();
-        ctx.translate(450, 325);
+        ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(qte.angle);
         ctx.beginPath();
         ctx.moveTo(0,0);
@@ -1290,30 +1319,23 @@ function drawQTEOverlay(ctx) {
     ctx.fillStyle = '#fff';
     ctx.font = '24px "Press Start 2P"';
     ctx.textAlign = 'center';
-    
     if (qte.state === 'SPINNING') {
-        ctx.fillText(`PRESS [${qteKeyNames[qte.key]}]`, 450, 180);
+        ctx.fillText(`PRESS [${qteKeyNames[qte.key]}]`, canvas.width / 2, canvas.height / 2 - 140);
     } else if (qte.state === 'HIT') {
         ctx.fillStyle = '#2ecc71';
-        ctx.fillText("SUCCESS!", 450, 180);
-        ctx.font = '14px "Press Start 2P"';
-        ctx.fillText("+10 MAX HP", 450, 210);
+        ctx.fillText("SUCCESS!", canvas.width / 2, canvas.height / 2 - 140);
     } else if (qte.state === 'MISS') {
         ctx.fillStyle = '#e74c3c';
-        ctx.fillText("MISS!", 450, 180);
-        ctx.font = '14px "Press Start 2P"';
-        ctx.fillText("-10 MAX HP", 450, 210);
+        ctx.fillText("MISS!", canvas.width / 2, canvas.height / 2 - 140);
     } else if (qte.state === 'WAIT') {
         ctx.fillStyle = '#f1c40f';
-        ctx.fillText("GET READY...", 450, 325);
+        ctx.fillText("GET READY...", canvas.width / 2, canvas.height / 2);
     }
-    
     ctx.fillStyle = '#f1c40f';
     ctx.font = '16px "Press Start 2P"';
-    ctx.fillText(`WARM-UP: ${qte.round}/3`, 450, 100);
-    
+    ctx.fillText(`WARM-UP: ${qte.round}/3`, canvas.width / 2, canvas.height / 2 - 200);
     ctx.fillStyle = qte.bonus >= 0 ? '#2ecc71' : '#e74c3c';
-    ctx.fillText(`BONUS: ${qte.bonus > 0 ? '+'+qte.bonus : qte.bonus} HP`, 450, 500);
+    ctx.fillText(`BONUS: ${qte.bonus > 0 ? '+'+qte.bonus : qte.bonus} HP`, canvas.width / 2, canvas.height / 2 + 160);
 }
 
 // --- EFFECTS ---
@@ -1324,7 +1346,7 @@ function spawnText(x, y, text, color) {
 function updateFloatingText(dt) {
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         let t = floatingTexts[i];
-        t.y -= 40 * dt; 
+        t.y -= 40 * dt;
         t.life -= dt;
         if (t.life <= 0) floatingTexts.splice(i, 1);
     }
@@ -1346,23 +1368,19 @@ function drawFloatingText(ctx) {
 
 // --- STATE MANAGEMENT ---
 function startGame() {
+    loadGame();
     screens.start.classList.add('hidden');
     generateRings();
     updatePlayerStats();
-    updateDaysUI();
     enterLobby();
 }
 
-function startNewRun() {
+function restartCareer() {
+    resetProgress();
     screens.over.classList.add('hidden');
-    upgrades = { hp: 1, dmg: 1, block: 1 };
-    money = 0;
-    currentDays = 1;
-    uiMoney.innerText = money;
-    updateDaysUI();
-    
     updatePlayerStats();
-    generateRings();
+    currentRing = null;
+    generateRings(); // RELOAD MAP
     enterLobby();
 }
 
@@ -1370,35 +1388,25 @@ function enterLobby() {
     gameState = 'LOBBY';
     currentRing = null;
     uiWallet.classList.remove('hidden');
-    uiCareer.classList.remove('hidden');
     uiFightHud.classList.add('hidden');
-    player.x = 450;
-    player.y = 550;
-    player.facingAngle = -Math.PI/2; 
-    
+    player.x = canvas.width / 2;
+    player.y = canvas.height - 100;
+    player.facingAngle = -Math.PI/2;
     player.state = 'IDLE';
     player.actionTimer = 0;
     player.lGloveExt = 0;
     player.rGloveExt = 0;
     player.isBlockBroken = false;
     floatingTexts = [];
+    fightInProgress = false;
 }
 
 function initiateFightSequence(ring) {
     currentRing = ring;
     gameState = 'QTE';
-    
-    playerScore = 0;
-    enemyScore = 0;
-    document.getElementById('score-player').innerText = playerScore;
-    document.getElementById('score-enemy').innerText = enemyScore;
-
     uiInteract.classList.add('hidden');
     uiWallet.classList.add('hidden');
-    uiCareer.classList.add('hidden');
-    
     updatePlayerStats();
-    
     let eHairs = ['#f1c40f', '#e74c3c', '#2ecc71', '#9b59b6', '#34495e'];
     let eShapes = ['CLASSIC', 'SPIKY', 'AFRO', 'BALD'];
     let eGloves = ['#c0392b', '#2980b9', '#16a085', '#8e44ad', '#f39c12'];
@@ -1406,39 +1414,74 @@ function initiateFightSequence(ring) {
     enemyHairShape = eShapes[Math.floor(Math.random() * eShapes.length)];
     enemyGlove = eGloves[Math.floor(Math.random() * eGloves.length)];
     generateSprites();
-    
+   
+    playerRoundsWon = 0;
+    enemyRoundsWon = 0;
+    updateRoundUI();
+
     player.state = 'IDLE';
     player.actionTimer = 0;
-    player.lGloveExt = 0;
-    player.rGloveExt = 0;
     enemy.state = 'IDLE';
     enemy.actionTimer = 0;
-    enemy.lGloveExt = 0;
-    enemy.rGloveExt = 0;
 
     let h = ring.size / 2 - 30;
-    player.x = ring.x - h; 
+    player.x = ring.x - h;
     player.y = ring.y + h;
     player.facingAngle = -Math.PI/4;
 
-    enemy.maxHp = 100 * ring.data.hpM;
+    // ENDLESS SCALING LOGIC: Enemies get 10% stronger per day survived
+    let careerScale = 1 + (currentCareerDays * 0.1);
+
+    enemy.maxHp = (100 * ring.data.hpM) * careerScale;
     enemy.hp = enemy.maxHp;
-    enemy.baseDmg = 10 * ring.data.dmgM;
-    enemy.speed = 150 * ring.data.spdM;
-    enemy.maxBlock = 50 * ring.data.hpM;
+    enemy.baseDmg = (10 * ring.data.dmgM) * careerScale;
+    enemy.speed = (150 * ring.data.spdM) * careerScale;
+    enemy.maxBlock = (30 * ring.data.hpM) * careerScale; // Scaled base 30
     enemy.blockHealth = enemy.maxBlock;
     enemy.isBlockBroken = false;
-    
-    enemy.x = ring.x + h; 
+   
+    enemy.x = ring.x + h;
     enemy.y = ring.y - h;
     enemy.facingAngle = Math.PI * 0.75;
-
     floatingTexts = [];
-    
-    qte.bonus = 0;
-    qte.round = 0;
-    qte.state = 'WAIT';
-    qte.timer = 1.0;
+    qte.bonus = 0; qte.round = 0; qte.state = 'WAIT'; qte.timer = 1.0;
+}
+
+function resetRound() {
+    let max = player.fightMaxHp || player.maxHp;
+    player.hp = max;
+    player.blockHealth = player.maxBlock;
+    player.isBlockBroken = false;
+    player.state = 'IDLE';
+
+    enemy.hp = enemy.maxHp;
+    enemy.blockHealth = enemy.maxBlock;
+    enemy.isBlockBroken = false;
+    enemy.state = 'IDLE';
+
+    let h = currentRing.size / 2 - 40;
+    player.x = currentRing.x - h;
+    player.y = currentRing.y + h;
+    enemy.x = currentRing.x + h;
+    enemy.y = currentRing.y - h;
+
+    fightInProgress = true;
+    spawnText(canvas.width/2, canvas.height/2, "ROUND START!", "#f1c40f");
+}
+
+function updateRoundUI() {
+    const ids = ['r-p1', 'r-p2', 'r-mid', 'r-e2', 'r-e1'];
+    ids.forEach(id => {
+        document.getElementById(id).classList.remove('player-win', 'enemy-win', 'gold');
+    });
+
+    if (playerRoundsWon >= 1) document.getElementById('r-p1').classList.add('player-win');
+    if (playerRoundsWon >= 2) document.getElementById('r-p2').classList.add('player-win');
+    if (playerRoundsWon >= 3) document.getElementById('r-mid').classList.add('player-win', 'gold');
+
+    if (enemyRoundsWon >= 1) document.getElementById('r-e1').classList.add('enemy-win');
+    if (enemyRoundsWon >= 2) document.getElementById('r-e2').classList.add('enemy-win');
+    if (enemyRoundsWon >= 3) document.getElementById('r-mid').classList.add('enemy-win', 'gold');
 }
 
 function updateFightHUD() {
@@ -1446,14 +1489,18 @@ function updateFightHUD() {
     document.getElementById('p-hp-fill').style.width = Math.max(0, (player.hp / max) * 100) + '%';
     document.getElementById('p-block-fill').style.width = Math.max(0, (player.blockHealth / player.maxBlock) * 100) + '%';
     document.getElementById('p-block-fill').style.background = player.isBlockBroken ? '#ff2a4b' : '#00d2ff';
+   
     document.getElementById('e-hp-fill').style.width = Math.max(0, (enemy.hp / enemy.maxHp) * 100) + '%';
+    document.getElementById('e-block-fill').style.width = Math.max(0, (enemy.blockHealth / enemy.maxBlock) * 100) + '%';
+    document.getElementById('e-block-fill').style.background = enemy.isBlockBroken ? '#ff2a4b' : '#00d2ff';
 }
 
 function returnToLobby() {
     screens.win.classList.add('hidden');
     floatingTexts = [];
     updatePlayerStats();
-    generateRings(); 
+    currentRing = null;
+    generateRings(); // RELOAD MAP
     enterLobby();
 }
 
@@ -1468,7 +1515,8 @@ function openShop() {
 function closeShop() {
     uiShop.classList.add('hidden');
     gameState = 'LOBBY';
-    updatePlayerStats(); 
+    updatePlayerStats();
+    saveGame();
 }
 
 function switchTab(tab) {
@@ -1477,12 +1525,10 @@ function switchTab(tab) {
     document.getElementById('tab-hair').classList.add('hidden');
     document.getElementById('tab-gloves').classList.add('hidden');
     document.getElementById('tab-' + tab).classList.remove('hidden');
-
     document.getElementById('btn-tab-stats').classList.remove('active');
     document.getElementById('btn-tab-hair').classList.remove('active');
     document.getElementById('btn-tab-gloves').classList.remove('active');
     document.getElementById('btn-tab-' + tab).classList.add('active');
-
     refreshShopUI();
 }
 
@@ -1490,12 +1536,9 @@ function refreshShopUI() {
     if (activeTab === 'stats') {
         ['hp', 'dmg', 'block'].forEach(stat => {
             let lvl = upgrades[stat];
-            let cost = baseCosts[stat] * Math.pow(1.5, lvl - 1); 
-            cost = Math.floor(cost);
-            
+            let cost = Math.floor(baseCosts[stat] * Math.pow(1.5, lvl - 1));
             document.getElementById(`stat-${stat}`).innerText = `LVL ${lvl}`;
             document.getElementById(`cost-${stat}`).innerText = `$${cost}`;
-            
             let btn = document.getElementById(`btn-${stat}`);
             btn.disabled = money < cost;
         });
@@ -1544,6 +1587,7 @@ function buyHair(color, shape, cost) {
     equippedHairShape = shape;
     generateSprites();
     refreshShopUI();
+    saveGame();
 }
 
 function buyGlove(color, cost) {
@@ -1555,6 +1599,7 @@ function buyGlove(color, cost) {
     equippedGlove = color;
     generateSprites();
     refreshShopUI();
+    saveGame();
 }
 
 function buyUpgrade(stat) {
@@ -1564,6 +1609,7 @@ function buyUpgrade(stat) {
         upgrades[stat]++;
         uiMoney.innerText = money;
         refreshShopUI();
+        saveGame();
     }
 }
 
@@ -1572,7 +1618,6 @@ function gameLoop(timestamp) {
     if (!lastTime) lastTime = timestamp;
     let dt = (timestamp - lastTime) / 1000;
     lastTime = timestamp;
-    
     if (dt > 0.1) dt = 0.1;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1582,13 +1627,10 @@ function gameLoop(timestamp) {
         drawGame();
     } else if (gameState === 'QTE') {
         updateQTE(dt);
-        drawGame(); 
+        drawGame();
         drawQTEOverlay(ctx);
     } else if (gameState === 'FIGHT') {
         updateFight(dt);
-        drawGame();
-    } else if (gameState === 'ROUND_TRANSITION') {
-        updateTransition(dt);
         drawGame();
     } else if (gameState === 'SHOP') {
         drawGame();
@@ -1598,6 +1640,7 @@ function gameLoop(timestamp) {
 }
 
 requestAnimationFrame(gameLoop);
+window.onload = loadGame;
 
 </script>
 </body>
