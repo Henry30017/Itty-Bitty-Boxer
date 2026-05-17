@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bioforge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+       
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        .animal-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            position: relative;
+        }
+
+        .animal-card:hover {
+            transform: translateY(-5px);
+            border-color: #6366f1;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .rarity-normal { color: #cbd5e1; }
+        .rarity-common { color: #94a3b8; }
+        .rarity-uncommon { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+        .rarity-rare { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.3); }
+        .rarity-epic { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
+        .rarity-mythical { color: #fb7185; text-shadow: 0 0 15px rgba(251, 113, 133, 0.5); font-weight: bold; }
+        .rarity-godly { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.7); font-weight: 900; animation: pulse 2s infinite; }
+        .rarity-ascendant { color: #22d3ee; text-shadow: 0 0 25px rgba(34, 211, 238, 0.8); font-weight: 900; }
+        .rarity-omni { color: #ffffff; text-shadow: 0 0 30px #fff, 0 0 50px #6366f1; font-weight: 900; animation: rainbow-glow 3s linear infinite; }
+
+        @keyframes rainbow-glow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .progress-bar { transition: width 0.1s linear; }
+        .cooldown-bar { transition: height 0.3s linear; }
+        .floating { animation: floating 3s ease-in-out infinite; }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .egg-selector button.active {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.2);
+            transform: scale(1.05);
+        }
+
+        .warborn-glint {
+            box-shadow: 0 0 15px #ff4757;
+            border-color: #ff4757 !important;
+        }
+
+        .chat-bubble {
+            position: relative;
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1rem;
+            max-width: 90%;
+            border: 1px solid #334155;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-[1600px] mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl">
+            <div class="flex items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Bio <span class="text-indigo-500">Forge</span> </h1>
+                    <p class="text-slate-400">Discover species and negotiate with buyers!</p>
+                </div>
+            </div>
+            <div class="flex gap-2 md:gap-4 items-center">
+                <button id="open-market" class="p-3 bg-amber-900/50 hover:bg-amber-800 rounded-xl transition-all border border-amber-500/30 relative" title="Global Market">
+                    <span class="text-2xl">🏪</span>
+                    <div id="market-notif" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-slate-800"></div>
+                </button>
+                <button id="open-cryo" class="p-3 bg-cyan-900/50 hover:bg-cyan-800 rounded-xl transition-all border border-cyan-500/30" title="Cryogenic Chamber">
+                    <span class="text-2xl">🌵</span>
+                </button>
+                <button id="open-journal" class="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all relative" title="Mutation Journal">
+                    <span class="text-2xl">📖</span>
+                    <div id="journal-notif" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-800"></div>
+                </button>
+                <div class="h-10 w-px bg-slate-700"></div>
+                <div class="text-right">
+                    <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Total Budget</p>
+                    <p id="money-display" class="text-2xl font-mono font-bold text-emerald-400">$250</p>
+                    <p id="income-display" class="text-[10px] font-mono text-emerald-500/80">+$0/s</p>
+                </div>
+                <div class="h-10 w-px bg-slate-700"></div>
+                <div class="text-right">
+                    <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Zoo Pop.</p>
+                    <p id="pop-display" class="text-2xl font-mono font-bold text-indigo-400">0/24</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+            <!-- 1. INCUBATOR -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🥚</span> 1. Incubator</h2>
+                    <div class="egg-selector grid grid-cols-2 gap-2 mb-4">
+                        <button id="egg-tier-0" class="active flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                            <span class="text-xl">🥚</span>
+                            <span class="text-[10px] font-bold uppercase mt-1">Standard</span>
+                            <span class="text-[9px] text-slate-400">$100</span>
+                        </button>
+                        <button id="egg-tier-1" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                            <span class="text-xl">✨</span>
+                            <span class="text-[10px] font-bold uppercase mt-1">Great</span>
+                            <span class="text-[9px] text-slate-400">$1,500</span>
+                        </button>
+                        <button id="egg-tier-2" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                            <span class="text-xl">💎</span>
+                            <span class="text-[10px] font-bold uppercase mt-1">Ultra</span>
+                            <span class="text-[9px] text-slate-400">$8,500</span>
+                        </button>
+                        <button id="egg-tier-3" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                            <span class="text-xl">🌌</span>
+                            <span class="text-[10px] font-bold uppercase mt-1">Omega</span>
+                            <span class="text-[9px] text-slate-400">$30,000</span>
+                        </button>
+                    </div>
+                    <div id="hatch-zone" class="relative bg-slate-900 rounded-xl aspect-square flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-700 mb-4">
+                        <div id="egg-container" class="text-8xl floating cursor-pointer select-none">🥚</div>
+                        <div id="hatch-overlay" class="hidden absolute inset-0 bg-indigo-600/20 flex items-center justify-center backdrop-blur-sm">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold mb-2 text-white">HATCHING...</div>
+                                <div class="w-40 h-2 bg-slate-800 rounded-full overflow-hidden mx-auto">
+                                    <div id="hatch-progress" class="progress-bar h-full bg-white w-0"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="hatch-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors shadow-lg active:scale-95">BUY EGG ($100)</button>
+                </div>
+            </div>
+
+            <!-- 2. HABITATS -->
+            <div class="lg:col-span-4">
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold flex items-center gap-2"><span>🏡</span> 2. Habitats</h2>
+                        <button onclick="gameState.sortByRarity()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-[10px] uppercase font-bold transition-colors">Sort</button>
+                    </div>
+                    <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[700px] pr-2"></div>
+                    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-500 italic py-20">
+                        <span class="text-4xl mb-2">🏜️</span> No animals yet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. GENE LAB & UPGRADES -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-xl font-bold flex items-center gap-2 mb-4"><span>🧬</span> 3. Gene Lab</h2>
+                    <div class="grid grid-cols-2 gap-2 mb-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
+                        <div class="flex flex-col items-center">
+                            <div id="parent-1" class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                                <span class="emoji text-3xl">?</span>
+                                <span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
+                            </div>
+                            <span class="text-[9px] text-slate-500 mt-1 uppercase font-bold">Source</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="parent-2" class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
+                                <span class="emoji text-3xl">?</span>
+                                <span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
+                            </div>
+                            <span class="text-[9px] text-slate-500 mt-1 uppercase font-bold">Target</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button id="lab-breed-btn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">HYBRID BREED ($500)</button>
+                        <button id="lab-transfer-btn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">TRANSFER GENE ($2,500)</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🚀</span> 4. Upgrades</h2>
+                    <div class="space-y-3">
+                        <button id="upg-luck" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-indigo-500 transition-all">
+                            <div class="text-left"><p class="text-xs font-bold uppercase text-indigo-400">Luck</p><p id="luck-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
+                            <p id="luck-cost" class="text-sm font-mono font-bold text-emerald-400">$300</p>
+                        </button>
+                        <button id="upg-profit" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-emerald-500 transition-all">
+                            <div class="text-left"><p class="text-xs font-bold uppercase text-emerald-400">Profit</p><p id="profit-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
+                            <p id="profit-cost" class="text-sm font-mono font-bold text-emerald-400">$500</p>
+                        </button>
+                        <button id="upg-maint" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-yellow-500 transition-all">
+                            <div class="text-left"><p class="text-xs font-bold uppercase text-yellow-400">Maintenance</p><p id="maint-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
+                            <p id="maint-cost" class="text-sm font-mono font-bold text-emerald-400">$200</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SIDE MAINTENANCE -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>💩</span> Scoop</h2>
+                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <div id="cooldown-scoop" class="cooldown-bar absolute bottom-0 left-0 w-full bg-emerald-600/20"></div>
+                        <button onclick="gameState.doMaintenance('scoop')" id="btn-scoop" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-emerald-500/10 transition-colors">
+                            <span class="text-2xl">💩</span>
+                            <span id="text-scoop" class="text-[10px] font-bold uppercase">Ready</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🥬</span> Feed</h2>
+                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <div id="cooldown-feed" class="cooldown-bar absolute bottom-0 left-0 w-full bg-blue-600/20"></div>
+                        <button onclick="gameState.doMaintenance('feed')" id="btn-feed" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-blue-500/10 transition-colors">
+                            <span class="text-2xl">🥬</span>
+                            <span id="text-feed" class="text-[10px] font-bold uppercase">Ready</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🖐️</span> Pet</h2>
+                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                        <div id="cooldown-pet" class="cooldown-bar absolute bottom-0 left-0 w-full bg-pink-600/20"></div>
+                        <button onclick="gameState.doMaintenance('pet')" id="btn-pet" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-pink-500/10 transition-colors">
+                            <span class="text-2xl">🖐️</span>
+                            <span id="text-pet" class="text-[10px] font-bold uppercase">Ready</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="journal-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="text-2xl font-bold flex items-center gap-2"><span class="text-indigo-400">📖</span> Mutation Journal</h2>
+                <button id="close-journal" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <div id="journal-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl flex flex-col">
+            <div id="detail-content" class="p-8 flex flex-col items-center text-center"></div>
+            <button id="close-detail" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl">&times;</button>
+        </div>
+    </div>
+
+    <div id="cryo-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-slate-900 border border-cyan-700 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden relative shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-cyan-800 flex justify-between items-center bg-cyan-950/20">
+                <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400"><span>🌵</span> Cryogenic Chamber</h2>
+                <button id="close-cryo" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <div id="cryo-list" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="market-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="modal-backdrop absolute inset-0"></div>
+        <div class="bg-slate-900 border border-amber-700/50 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-amber-950/10">
+                <div class="flex gap-4">
+                    <button onclick="gameState.switchMarketTab('buy')" id="tab-buy" class="text-2xl font-bold text-white opacity-100">🏪 Market</button>
+                    <button onclick="gameState.switchMarketTab('sell')" id="tab-sell" class="text-2xl font-bold text-white opacity-40">🏷️ Sales</button>
+                </div>
+                <button id="close-market" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="market-buy-view" class="p-6 overflow-y-auto flex-1">
+                <div id="market-stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+            <div id="market-sell-view" class="p-6 overflow-y-auto flex-1 hidden"></div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex flex-col gap-2 w-full max-w-sm px-4"></div>
+
+    <script type="module">
+        const SPECIES = [
+            { name: "Snake", emoji: "🐍", baseValue: 15, weight: 100 },
+            { name: "Parrot", emoji: "🦜", baseValue: 20, weight: 100 },
+            { name: "Penguin", emoji: "🐧", baseValue: 25, weight: 100 },
+            { name: "Cat", emoji: "🐈", baseValue: 30, weight: 100 },
+            { name: "Turtle", emoji: "🐢", baseValue: 35, weight: 80 },
+            { name: "Sloth", emoji: "🦥", baseValue: 40, weight: 80 },
+            { name: "Red Panda", emoji: "🦊", baseValue: 50, weight: 60 },
+            { name: "Tiger", emoji: "🐅", baseValue: 70, weight: 60 },
+            { name: "Axolotl", emoji: "🦎", baseValue: 85, weight: 40 },
+            { name: "Zebra", emoji: "🦓", baseValue: 90, weight: 40 },
+            { name: "Gorilla", emoji: "🦍", baseValue: 130, weight: 30 },
+            { name: "Shark", emoji: "🦈", baseValue: 180, weight: 20 },
+            { name: "Elephant", emoji: "🐘", baseValue: 250, weight: 15 },
+            { name: "Whale", emoji: "🐋", baseValue: 450, weight: 8 },
+            { name: "Dragon", emoji: "🐉", baseValue: 1200, weight: 2 },
+            { name: "Unicorn", emoji: "🦄", baseValue: 2500, weight: 0.5 },
+            { name: "Phoenix", emoji: "🔥", baseValue: 8000, weight: 0.1 },
+            { name: "Gorgon", emoji: "🐍👤", baseValue: 25000, weight: 0.05 },
+            { name: "Leviathan", emoji: "🌊🐉", baseValue: 65000, weight: 0.01 },
+            { name: "Celestial Stag", emoji: "🦌✨", baseValue: 150000, weight: 0.005 },
+            { name: "Void Mantis", emoji: "🦗🌌", baseValue: 400000, weight: 0.001 },
+            { name: "Reality Glitch", emoji: "👾🚫", baseValue: 1000000, weight: 0.0001 }
+        ];
+
+        const MUTATIONS = [
+            { id: "normal", name: "Regular", chance: 1, valueMult: 1, rarity: "Normal", reward: 0 },
+            { id: "extra_legs", name: "Extra Legs", chance: 1/15, valueMult: 2.2, rarity: "Common", reward: 25 },
+            { id: "spotted", name: "Inverted Spots", chance: 1/20, valueMult: 2.5, rarity: "Common", reward: 35 },
+            { id: "long_tail", name: "Long Tail", chance: 1/25, valueMult: 2.8, rarity: "Common", reward: 40 },
+            { id: "extra_eyes", name: "Multiple Eyes", chance: 1/45, valueMult: 3.5, rarity: "Uncommon", reward: 60 },
+            { id: "glowing", name: "Bioluminescent", chance: 1/55, valueMult: 4.2, rarity: "Uncommon", reward: 75 },
+            { id: "fuzzy", name: "Ultra Fuzzy", chance: 1/65, valueMult: 4.8, rarity: "Uncommon", reward: 90 },
+            { id: "winged", name: "Vestigial Wings", chance: 1/100, valueMult: 6.5, rarity: "Rare", reward: 150 },
+            { id: "albino", name: "Albino", chance: 1/120, valueMult: 7.0, rarity: "Rare", reward: 200 },
+            { id: "melanistic", name: "Melanistic", chance: 1/200, valueMult: 12, rarity: "Rare", reward: 350 },
+            { id: "gem_crusted", name: "Gem Crusted", chance: 1/300, valueMult: 18, rarity: "Rare", reward: 500 },
+            { id: "two_heads", name: "Two Heads", chance: 1/500, valueMult: 30, rarity: "Epic", reward: 800 },
+            { id: "neon", name: "Neon Flux", chance: 1/850, valueMult: 60, rarity: "Epic", reward: 1200 },
+            { id: "plasma_core", name: "Plasma Core", chance: 1/1500, valueMult: 110, rarity: "Epic", reward: 3200 },
+            { id: "metal", name: "Metallic", chance: 1/3000, valueMult: 180, rarity: "Mythical", reward: 5000 },
+            { id: "crystal", name: "Crystalline", chance: 1/6000, valueMult: 450, rarity: "Mythical", reward: 12000 },
+            { id: "ghostly", name: "Ethereal", chance: 1/12000, valueMult: 1500, rarity: "Mythical", reward: 35000 },
+            { id: "ancient_rune", name: "Runed", chance: 1/18000, valueMult: 2200, rarity: "Mythical", reward: 55000 },
+            { id: "cosmic", name: "Cosmic", chance: 1/60000, valueMult: 12000, rarity: "Godly", reward: 150000 },
+            { id: "golden", name: "24k Gold", chance: 1/250000, valueMult: 95000, rarity: "Godly", reward: 450000 },
+            { id: "astral", name: "Astral", chance: 1/1200000, valueMult: 450000, rarity: "Ascendant", reward: 2500000 },
+            { id: "void", name: "Void", chance: 1/3000000, valueMult: 1200000, rarity: "Ascendant", reward: 6000000 },
+            { id: "supernova", name: "Supernova", chance: 1/15000000, valueMult: 5500000, rarity: "Ascendant", reward: 20000000 },
+            { id: "quantum", name: "Quantum State", chance: 1/50000000, valueMult: 18000000, rarity: "Omni", reward: 100000000 },
+            { id: "the_singularity", name: "The Singularity", chance: 1/250000000, valueMult: 85000000, rarity: "Omni", reward: 500000000 },
+            { id: "pure_energy", name: "Manifest Energy", chance: 1/1000000000, valueMult: 500000000, rarity: "Omni", reward: 2500000000 }
+        ];
+
+        const RARITY_LEVELS = { "Normal": 0, "Common": 1, "Uncommon": 2, "Rare": 3, "Epic": 4, "Mythical": 5, "Godly": 6, "Ascendant": 7, "Omni": 8 };
+
+        const EGG_TIERS = [
+            { id: 0, name: "Standard", cost: 100, luck: 1, emoji: "🥚" },
+            { id: 1, name: "Great", cost: 1500, luck: 3.5, emoji: "✨" },
+            { id: 2, name: "Ultra", cost: 8500, luck: 12, emoji: "💎" },
+            { id: 3, name: "Omega", cost: 30000, luck: 60, emoji: "🌌" }
+        ];
+
+        const gameState = {
+            money: 250,
+            animals: [],
+            discoveredMutations: ["normal"],
+            maxPop: 24,
+            selectedEggTier: 0,
+            upgrades: {
+                luck: { level: 1, baseCost: 300 },
+                profit: { level: 1, baseCost: 500 },
+                maint: { level: 1, baseCost: 200 }
+            },
+            maintenance: {
+                scoop: { cooldown: 0, max: 10, pay: 50 },
+                feed: { cooldown: 0, max: 25, pay: 150 },
+                pet: { cooldown: 0, max: 3, pay: 15 }
+            },
+            selectedForLab: [],
+            marketStock: [],
+            lastMarketRefresh: 0,
+            activeListing: null,
+            currentOffer: null,
+            nextOfferTime: 0,
+            marketTab: 'buy',
+
+            init() {
+                this.loadData();
+                this.updateUI();
+                this.setupListeners();
+                this.updateJournal();
+                setInterval(() => this.tick(), 1000);
+            },
+
+            saveData() {
+                const save = {
+                    money: this.money,
+                    animals: this.animals,
+                    discoveredMutations: this.discoveredMutations,
+                    upgrades: this.upgrades,
+                    lastMarketRefresh: this.lastMarketRefresh,
+                    marketStock: this.marketStock,
+                    activeListing: this.activeListing,
+                    nextOfferTime: this.nextOfferTime
+                };
+                localStorage.setItem('zoo_mutation_save', JSON.stringify(save));
+            },
+
+            loadData() {
+                const saved = localStorage.getItem('zoo_mutation_save');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    Object.assign(this, data);
+                    this.updateJournal();
+                }
+            },
+
+            tick() {
+                const now = Date.now();
+                let totalIncome = 0;
+
+                this.animals.forEach(a => {
+                    const rank = RARITY_LEVELS[a.mutation.rarity] || 0;
+                    totalIncome += (1 + rank);
+                    if (!a.level) a.level = 0;
+                    if (a.level < 15) {
+                        a.exp = (a.exp || 0) + 1;
+                        if (a.exp >= (120 + a.level * 30)) {
+                            a.level++; a.exp = 0;
+                            this.showToast(`${a.name} is now Lv. ${a.level}!`, "success");
+                        }
+                    }
+                    if (a.isInCryo && now >= a.cryoEndTime) this.finishCryo(a);
+                });
+
+                this.money += totalIncome;
+
+                Object.keys(this.maintenance).forEach(key => {
+                    if (this.maintenance[key].cooldown > 0) {
+                        this.maintenance[key].cooldown--;
+                        this.updateMaintenanceUI(key);
+                    }
+                });
+
+                if (now - this.lastMarketRefresh > 3600000) this.refreshMarket();
+
+                if (this.activeListing && !this.currentOffer && now >= this.nextOfferTime) {
+                    this.generateOffer();
+                }
+
+                document.getElementById('money-display').innerText = `$${Math.floor(this.money).toLocaleString()}`;
+                document.getElementById('income-display').innerText = `+$${totalIncome}/s`;
+                document.getElementById('pop-display').innerText = `${this.animals.length}/${this.maxPop}`;
+                this.saveData();
+            },
+
+            updateUI() {
+                const grid = document.getElementById('inventory-grid');
+                grid.innerHTML = '';
+                this.animals.forEach(a => grid.appendChild(this.createAnimalCard(a)));
+                document.getElementById('empty-state').style.display = this.animals.length ? 'none' : 'flex';
+
+                ['luck', 'profit', 'maint'].forEach(t => {
+                    const upg = this.upgrades[t];
+                    document.getElementById(`${t}-level`).innerText = `Lv. ${upg.level}${upg.level >= 100 ? ' (MAX)' : ''}`;
+                    document.getElementById(`${t}-cost`).innerText = upg.level >= 100 ? '---' : `$${this.getUpgradeCost(t).toLocaleString()}`;
+                });
+
+                const p1 = this.selectedForLab[0];
+                const p2 = this.selectedForLab[1];
+                document.getElementById('parent-1').querySelector('.emoji').innerText = p1?.emoji || '?';
+                document.getElementById('parent-1').querySelector('.mut-tag').innerText = p1?.mutation.name || '';
+                document.getElementById('parent-2').querySelector('.emoji').innerText = p2?.emoji || '?';
+                document.getElementById('parent-2').querySelector('.mut-tag').innerText = p2?.mutation.name || '';
+                
+                document.getElementById('lab-breed-btn').disabled = this.selectedForLab.length < 2;
+                document.getElementById('lab-transfer-btn').disabled = this.selectedForLab.length < 2 || this.selectedForLab[0].mutation.id === 'normal';
+            },
+
+            getUpgradeCost(type) {
+                const upg = this.upgrades[type];
+                const mult = type === 'luck' ? 2.5 : 2.0;
+                return Math.floor(upg.baseCost * Math.pow(mult, upg.level - 1));
+            },
+
+            upgrade(type) {
+                if (this.upgrades[type].level >= 100) return;
+                const cost = this.getUpgradeCost(type);
+                if (this.money >= cost) {
+                    this.money -= cost;
+                    this.upgrades[type].level++;
+                    this.updateUI();
+                } else { this.showToast("Not enough money!"); }
+            },
+
+            createAnimalCard(animal) {
+                const isSelected = this.selectedForLab.find(a => a.id === animal.id);
+                const div = document.createElement('div');
+                div.className = `animal-card p-3 rounded-xl cursor-pointer ${isSelected ? 'ring-2 ring-indigo-500 bg-indigo-900/30' : ''} ${animal.isWarborn ? 'warborn-glint' : ''}`;
+                const val = this.calcVal(animal);
+                const rarityClass = `rarity-${animal.mutation.rarity.toLowerCase()}`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-2xl">${animal.emoji}</span>
+                        <div class="flex flex-col items-end">
+                            <span class="text-[8px] font-bold uppercase ${rarityClass}">${animal.mutation.rarity}</span>
+                            <span class="text-[8px] bg-slate-700 px-1 rounded text-slate-300">Lv.${animal.level || 0}</span>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white text-[10px] truncate mt-1">${animal.mutation.name} ${animal.name}</h3>
+                    <p class="text-emerald-400 font-mono text-[9px]">$${Math.floor(val).toLocaleString()}</p>
+                    <div class="flex gap-1 mt-2">
+                        <button class="lab-btn flex-1 bg-indigo-500/20 text-indigo-400 text-[8px] font-bold py-1 rounded">Lab</button>
+                        <button class="sell-btn flex-1 bg-red-500/20 text-red-400 text-[8px] font-bold py-1 rounded">Sell</button>
+                    </div>
+                `;
+                div.onclick = () => this.showAnimalDetails(animal);
+                div.querySelector('.lab-btn').onclick = (e) => { e.stopPropagation(); this.toggleLab(animal); };
+                div.querySelector('.sell-btn').onclick = (e) => { e.stopPropagation(); this.sellAnimalInstantly(animal.id); };
+                return div;
+            },
+
+            calcVal(a) {
+                let v = a.baseValue * a.mutation.valueMult;
+                if (a.isWarborn) v *= 1.5;
+                return v * (1 + (this.upgrades.profit.level - 1) * 0.12);
+            },
+
+            showAnimalDetails(animal) {
+                const modal = document.getElementById('detail-modal');
+                const content = document.getElementById('detail-content');
+                const val = this.calcVal(animal);
+                const rank = RARITY_LEVELS[animal.mutation.rarity] || 0;
+                const timeNeeded = 120 + ((animal.level || 0) * 30);
+                const progress = (((animal.exp || 0) / timeNeeded) * 100).toFixed(1);
+
+                content.innerHTML = `
+                    <div class="text-6xl mb-4 floating">${animal.emoji}</div>
+                    <h2 class="text-2xl font-bold text-white">${animal.mutation.name} ${animal.name}</h2>
+                    <p class="rarity-${animal.mutation.rarity.toLowerCase()} font-bold uppercase text-sm mb-4">${animal.mutation.rarity}</p>
+                    <div class="grid grid-cols-2 gap-4 w-full bg-slate-800/50 p-4 rounded-2xl mb-4 text-left">
+                        <div><p class="text-[10px] text-slate-500 font-bold">Income</p><p class="text-lg text-emerald-400">+$${1 + rank}/s</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Value</p><p class="text-lg text-emerald-400">$${Math.floor(val).toLocaleString()}</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Level</p><p class="text-lg text-white">${animal.level || 0}/15</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Next</p><p class="text-lg text-indigo-400">${progress}%</p></div>
+                        <div class="col-span-2"><p class="text-[10px] text-slate-500 font-bold">Acquired</p><p class="text-xs text-slate-400">${new Date(animal.acquiredAt || Date.now()).toLocaleString()}</p></div>
+                    </div>
+                    <button onclick="gameState.listOnMarket('${animal.id}')" class="w-full py-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-xs shadow-lg transition-all">LIST ON MARKET</button>
+                `;
+                modal.classList.remove('hidden');
+            },
+
+            // --- LAB LOGIC ---
+            toggleLab(animal) {
+                const idx = this.selectedForLab.findIndex(a => a.id === animal.id);
+                if (idx > -1) this.selectedForLab.splice(idx, 1);
+                else if (this.selectedForLab.length < 2) this.selectedForLab.push(animal);
+                this.updateUI();
+            },
+
+            doBreed() {
+                if (this.selectedForLab.length < 2) return;
+                if (this.money < 500) { this.showToast("Need $500!"); return; }
+                const luckBonus = 2 + (RARITY_LEVELS[this.selectedForLab[0].mutation.rarity] * 5) + (RARITY_LEVELS[this.selectedForLab[1].mutation.rarity] * 5);
+                this.money -= 500;
+                this.selectedForLab = [];
+                this.hatchEgg(luckBonus);
+            },
+
+            doTransfer() {
+                if (this.selectedForLab.length < 2) return;
+                const source = this.selectedForLab[0];
+                const target = this.selectedForLab[1];
+                if (source.mutation.id === 'normal') return;
+                if (this.money < 2500) { this.showToast("Need $2,500!"); return; }
+                this.money -= 2500;
+                const targetIdx = this.animals.findIndex(a => a.id === target.id);
+                this.animals[targetIdx].mutation = { ...source.mutation };
+                this.animals.splice(this.animals.findIndex(a => a.id === source.id), 1);
+                this.selectedForLab = [];
+                this.showToast("Gene Transfer Successful!", "success");
+                this.updateUI();
+            },
+
+            // --- CRYO LOGIC ---
+            openCryo() {
+                const modal = document.getElementById('cryo-modal');
+                const list = document.getElementById('cryo-list');
+                list.innerHTML = '';
+                this.animals.forEach(animal => {
+                    if (animal.isInCryo) {
+                        const timeLeft = Math.max(0, Math.ceil((animal.cryoEndTime - Date.now()) / 1000));
+                        list.innerHTML += `<div class="p-4 bg-slate-800 rounded-xl border border-cyan-500/50 flex justify-between items-center">
+                            <span class="text-2xl">${animal.emoji}</span>
+                            <div class="text-xl font-mono text-cyan-400">${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}</div>
+                        </div>`;
+                    } else {
+                        const survival = 25 + ((animal.level || 0) * 3);
+                        list.innerHTML += `<div class="p-4 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+                            <div class="flex items-center gap-3"><span class="text-2xl">${animal.emoji}</span><p class="font-bold text-xs">${animal.name} (${survival}%)</p></div>
+                            <button onclick="gameState.startCryo('${animal.id}')" class="px-4 py-2 bg-cyan-900 rounded-lg text-[10px] font-bold">START ($100K)</button>
+                        </div>`;
+                    }
+                });
+                modal.classList.remove('hidden');
+            },
+
+            startCryo(id) {
+                const animal = this.animals.find(a => a.id == id);
+                if (this.money < 100000) { this.showToast("Need $100,000!"); return; }
+                this.money -= 100000;
+                animal.isInCryo = true;
+                animal.cryoEndTime = Date.now() + (15 * 60 * 1000);
+                this.openCryo();
+            },
+
+            finishCryo(animal) {
+                animal.isInCryo = false;
+                const survivalChance = 0.25 + ((animal.level || 0) * 0.03);
+                if (Math.random() <= survivalChance) {
+                    animal.isWarborn = true;
+                    this.showToast(`${animal.name} survived! It is now Warborn!`, "special");
+                } else {
+                    this.animals.splice(this.animals.findIndex(a => a.id === animal.id), 1);
+                    this.showToast(`${animal.name} perished in the cold.`, "error");
+                }
+                this.updateUI();
+            },
+
+            // --- MARKET LOGIC ---
+            refreshMarket() {
+                this.lastMarketRefresh = Date.now();
+                this.marketStock = [];
+                for(let i=0; i<6; i++) {
+                    const species = SPECIES[Math.floor(Math.random() * SPECIES.length)];
+                    this.marketStock.push({ id: Math.random(), ...species, mutation: MUTATIONS[0], price: species.baseValue * (3 + Math.random() * 3), stock: Math.ceil(Math.random() * 3) });
+                }
+            },
+
+            switchMarketTab(tab) {
+                this.marketTab = tab;
+                document.getElementById('market-buy-view').classList.toggle('hidden', tab !== 'buy');
+                document.getElementById('market-sell-view').classList.toggle('hidden', tab !== 'sell');
+                document.getElementById('tab-buy').style.opacity = tab === 'buy' ? '1' : '0.4';
+                document.getElementById('tab-sell').style.opacity = tab === 'sell' ? '1' : '0.4';
+                tab === 'buy' ? this.renderMarketBuy() : this.renderMarketSell();
+            },
+
+            renderMarketBuy() {
+                const grid = document.getElementById('market-stock-grid');
+                grid.innerHTML = '';
+                this.marketStock.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-800 p-4 rounded-xl border border-slate-700";
+                    div.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="text-3xl">${item.emoji}</span><span class="text-[10px] text-slate-400">Stock: ${item.stock}</span></div>
+                        <p class="font-bold text-white text-xs">${item.name}</p><p class="text-emerald-400 font-bold mb-3">$${Math.floor(item.price).toLocaleString()}</p>
+                        <button onclick="gameState.buyFromMarket('${item.id}')" class="w-full py-2 bg-indigo-600 rounded-lg text-[10px] font-bold">PURCHASE</button>`;
+                    grid.appendChild(div);
+                });
+            },
+
+            buyFromMarket(id) {
+                const item = this.marketStock.find(i => i.id == id);
+                if (!item || item.stock <= 0 || this.money < item.price || this.animals.length >= this.maxPop) return;
+                this.money -= item.price; item.stock--;
+                this.animals.push({ id: Date.now() + Math.random(), ...item, mutation: MUTATIONS[0], level: 0, exp: 0, acquiredAt: Date.now() });
+                this.renderMarketBuy(); this.updateUI();
+            },
+
+            listOnMarket(id) {
+                if (this.activeListing) { this.showToast("Only one animal at a time!"); return; }
+                const idx = this.animals.findIndex(a => a.id == id);
+                this.activeListing = this.animals.splice(idx, 1)[0];
+                const rank = RARITY_LEVELS[this.activeListing.mutation.rarity] || 0;
+                this.nextOfferTime = Date.now() + (60000 * (1 + rank));
+                document.getElementById('detail-modal').classList.add('hidden');
+                this.updateUI();
+            },
+
+            generateOffer() {
+                const baseVal = this.calcVal(this.activeListing);
+                this.currentOffer = { price: baseVal * (0.9 + Math.random() * 0.4), originPrice: 0, negotiateCount: 0, isLocked: false };
+                document.getElementById('market-notif').classList.remove('hidden');
+                this.showToast("New Buyer Interest!", "special");
+                if (this.marketTab === 'sell') this.renderMarketSell();
+            },
+
+            renderMarketSell() {
+                const view = document.getElementById('market-sell-view');
+                if (!this.activeListing) { view.innerHTML = `<div class="text-slate-500 italic p-10 text-center">List an animal from your Habitats to start.</div>`; return; }
+                if (!this.currentOffer) {
+                    view.innerHTML = `<div class="p-10 text-center"><div class="text-6xl mb-4 floating">${this.activeListing.emoji}</div><p class="text-slate-400 animate-pulse">Waiting for buyers...</p><button onclick="gameState.cancelListing()" class="mt-4 text-red-400 underline text-xs">Cancel Listing</button></div>`;
+                } else {
+                    view.innerHTML = `<div class="p-6"><div class="chat-bubble text-slate-200 text-sm mb-4">I am looking to purchase your ${this.activeListing.name} for <span class="text-emerald-400 font-bold">$${Math.floor(this.currentOffer.price).toLocaleString()}</span>.</div>
+                        ${this.currentOffer.isLocked ? '<p class="text-red-400 text-[10px] mb-4">They won\'t go any higher.</p>' : ''}
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="gameState.negotiate(0.05)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+5%</button>
+                            <button onclick="gameState.negotiate(0.10)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+10%</button>
+                            <button onclick="gameState.negotiate(0.15)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+15%</button>
+                            <button onclick="gameState.negotiate(0.20)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+20%</button>
+                            <button onclick="gameState.acceptOffer()" class="p-3 bg-emerald-600 rounded-lg font-bold text-xs col-span-1">SOLD!</button>
+                            <button onclick="gameState.declineOffer()" class="p-3 bg-red-900 rounded-lg font-bold text-xs col-span-1">DECLINE</button>
+                        </div></div>`;
+                }
+            },
+
+            negotiate(pct) {
+                this.currentOffer.negotiateCount++;
+                let success = false;
+                const roll = Math.random();
+                if (pct === 0.05 && roll < 0.8) success = true;
+                else if (pct === 0.10 && roll < 0.65) success = true;
+                else if (pct === 0.15 && roll < 0.4) success = true;
+                else if (pct === 0.20 && roll < 0.2) success = true;
+
+                if (success) { this.currentOffer.price *= (1 + pct); this.showToast("Success!"); }
+                else { this.currentOffer.isLocked = true; this.showToast("Declined."); }
+                this.renderMarketSell();
+            },
+
+            acceptOffer() {
+                this.money += Math.floor(this.currentOffer.price);
+                this.activeListing = null; this.currentOffer = null;
+                this.showToast("Animal Sold!", "success"); this.updateUI(); this.switchMarketTab('buy');
+            },
+
+            declineOffer() {
+                this.currentOffer = null;
+                const rank = RARITY_LEVELS[this.activeListing.mutation.rarity] || 0;
+                this.nextOfferTime = Date.now() + (60000 * (1 + rank));
+                this.renderMarketSell();
+            },
+
+            cancelListing() {
+                this.animals.push(this.activeListing);
+                this.activeListing = null; this.currentOffer = null;
+                this.updateUI(); this.switchMarketTab('buy');
+            },
+
+            sellAnimalInstantly(id) {
+                const idx = this.animals.findIndex(a => a.id == id);
+                this.money += Math.floor(this.calcVal(this.animals[idx]));
+                this.animals.splice(idx, 1);
+                document.getElementById('detail-modal').classList.add('hidden');
+                this.updateUI();
+            },
+
+            // --- UTILS ---
+            hatchEgg(luckOverride = 0) {
+                const tier = EGG_TIERS[this.selectedEggTier];
+                if (luckOverride === 0) {
+                    if (this.money < tier.cost) return;
+                    this.money -= tier.cost;
+                }
+                if (this.animals.length >= this.maxPop) return;
+                
+                document.getElementById('hatch-overlay').classList.remove('hidden');
+                let p = 0;
+                const int = setInterval(() => {
+                    p += 5;
+                    document.getElementById('hatch-progress').style.width = p + '%';
+                    if (p >= 100) {
+                        clearInterval(int);
+                        document.getElementById('hatch-overlay').classList.add('hidden');
+                        document.getElementById('hatch-progress').style.width = '0%';
+                        this.generateAnimal(luckOverride || tier.luck * (1 + (this.upgrades.luck.level - 1) * 0.15));
+                    }
+                }, 30);
+            },
+
+            generateAnimal(luck) {
+                const totalW = SPECIES.reduce((s, x) => s + x.weight, 0);
+                let rW = Math.random() * totalW;
+                let spec = SPECIES[0];
+                for(let s of SPECIES) { if(rW < s.weight) { spec = s; break; } rW -= s.weight; }
+                let mut = MUTATIONS[0];
+                for(let m of [...MUTATIONS].reverse()) {
+                    if (m.id !== 'normal' && Math.random() < (m.chance * luck)) { mut = m; break; }
+                }
+                this.animals.push({ id: Date.now() + Math.random(), ...spec, mutation: mut, level: 0, exp: 0, acquiredAt: Date.now() });
+                if(!this.discoveredMutations.includes(mut.id)) {
+                    this.discoveredMutations.push(mut.id);
+                    this.money += mut.reward;
+                    document.getElementById('journal-notif').classList.remove('hidden');
+                    this.updateJournal();
+                }
+                this.updateUI();
+            },
+
+            doMaintenance(type) {
+                const m = this.maintenance[type];
+                if (m.cooldown > 0) return;
+                this.money += Math.floor(m.pay * (1 + (this.upgrades.maint.level - 1) * 0.25));
+                m.cooldown = m.max;
+                this.updateMaintenanceUI(type);
+            },
+
+            updateMaintenanceUI(type) {
+                const m = this.maintenance[type];
+                const pct = (m.cooldown / m.max) * 100;
+                document.getElementById(`cooldown-${type}`).style.height = pct + '%';
+                document.getElementById(`text-${type}`).innerText = m.cooldown > 0 ? m.cooldown + 's' : 'Ready';
+            },
+
+            updateJournal() {
+                const list = document.getElementById('journal-list');
+                if (!list) return;
+                list.innerHTML = '';
+                MUTATIONS.forEach(mut => {
+                    const discovered = this.discoveredMutations.includes(mut.id);
+                    list.innerHTML += `<div class="p-4 rounded-xl border ${discovered ? 'bg-slate-800 border-slate-700' : 'bg-slate-900 opacity-40'}">
+                        <div class="flex justify-between"><span class="text-xs font-bold">${mut.name}</span><span class="text-[8px] rarity-${mut.rarity.toLowerCase()}">${mut.rarity}</span></div>
+                    </div>`;
+                });
+            },
+
+            sortByRarity() { this.animals.sort((a, b) => RARITY_LEVELS[b.mutation.rarity] - RARITY_LEVELS[a.mutation.rarity]); this.updateUI(); },
+
+            showToast(msg, type="info") {
+                const t = document.createElement('div');
+                t.className = `bg-slate-800 text-white px-4 py-2 rounded-lg border border-slate-700 text-xs font-bold animate-bounce`;
+                if(type === "success") t.classList.add('border-emerald-500');
+                if(type === "error") t.classList.add('border-red-500');
+                t.innerText = msg;
+                document.getElementById('toast-container').appendChild(t);
+                setTimeout(() => t.remove(), 3000);
+            },
+
+            setupListeners() {
+                document.getElementById('hatch-btn').onclick = () => this.hatchEgg();
+                document.getElementById('upg-luck').onclick = () => this.upgrade('luck');
+                document.getElementById('upg-profit').onclick = () => this.upgrade('profit');
+                document.getElementById('upg-maint').onclick = () => this.upgrade('maint');
+                document.getElementById('lab-breed-btn').onclick = () => this.doBreed();
+                document.getElementById('lab-transfer-btn').onclick = () => this.doTransfer();
+                document.getElementById('open-journal').onclick = () => { document.getElementById('journal-modal').classList.remove('hidden'); document.getElementById('journal-notif').classList.add('hidden'); };
+                document.getElementById('close-journal').onclick = () => document.getElementById('journal-modal').classList.add('hidden');
+                document.getElementById('open-market').onclick = () => { document.getElementById('market-modal').classList.remove('hidden'); document.getElementById('market-notif').classList.add('hidden'); this.switchMarketTab('buy'); };
+                document.getElementById('close-market').onclick = () => document.getElementById('market-modal').classList.add('hidden');
+                document.getElementById('open-cryo').onclick = () => this.openCryo();
+                document.getElementById('close-cryo').onclick = () => document.getElementById('cryo-modal').classList.add('hidden');
+                document.getElementById('close-detail').onclick = () => document.getElementById('detail-modal').classList.add('hidden');
+                EGG_TIERS.forEach(t => {
+                    document.getElementById(`egg-tier-${t.id}`).onclick = () => {
+                        this.selectedEggTier = t.id;
+                        document.querySelectorAll('.egg-selector button').forEach(b => b.classList.remove('active'));
+                        document.getElementById(`egg-tier-${t.id}`).classList.add('active');
+                        document.getElementById('hatch-btn').innerText = `BUY EGG ($${t.cost.toLocaleString()})`;
+                    };
+                });
+                window.gameState = this;
+            }
+        };
+
+        window.onload = () => gameState.init();
+    </script>
+</body>
+</html>
