@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billionaire Terminal - Trading Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a; /* slate-900 */
+            --panel-bg: #1e293b; /* slate-800 */
+            --border-color: #334155; /* slate-700 */
+            --text-main: #f8fafc; /* slate-50 */
+            --text-muted: #94a3b8; /* slate-400 */
+            --up-color: #22c55e; /* green-500 */
+            --down-color: #ef4444; /* red-500 */
+            --accent: #3b82f6; /* blue-500 */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Scrollbar for terminal look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .stock-up { color: var(--up-color); }
+        .stock-down { color: var(--down-color); }
+
+        .news-item {
+            border-left: 3px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .news-item:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-left-color: var(--accent);
+        }
+        .news-unread {
+            border-left-color: #eab308; /* yellow-500 */
+        }
+
+        /* Modal Overlay */
+        .modal-bg {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col selection:bg-blue-500/30">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0 shadow-md">
+        <div class="flex items-center gap-4">
+            <div class="text-blue-500 text-2xl"><i class="fa-solid fa-chart-line"></i></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wider">TERMINAL<span class="text-blue-500">_OS</span></h1>
+                <p class="text-xs text-slate-400 mono" id="date-display">Day 1 | Year 1</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-8">
+            <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Available Cash</p>
+                <p class="text-xl font-bold mono text-emerald-400" id="header-cash">$10,000.00</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Total Net Worth</p>
+                <p class="text-xl font-bold mono" id="header-nw">$10,000.00</p>
+            </div>
+            <div class="w-48 hidden md:block">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-400">Goal: 1 Billion</span>
+                    <span class="text-blue-400 mono" id="goal-pct">0.00%</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2 border border-slate-700">
+                    <div class="bg-blue-500 h-1.5 rounded-full" id="goal-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <button onclick="advanceDay()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-colors border border-blue-400 flex items-center gap-2">
+                Next Day <i class="fa-solid fa-forward"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Sidebar: News Feed -->
+        <aside class="w-80 border-r border-slate-700 flex flex-col bg-slate-900 z-10">
+            <div class="p-3 border-b border-slate-700 bg-slate-800 flex justify-between items-center">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300"><i class="fa-regular fa-newspaper mr-2"></i>Global Intel Feed</h2>
+                <span class="bg-blue-900 text-blue-300 text-xs py-0.5 px-2 rounded-full" id="news-count">0 New</span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-2 space-y-2" id="news-container">
+                <div class="p-4 text-center text-slate-500 text-sm mt-10">
+                    <i class="fa-solid fa-satellite-dish text-2xl mb-2 opacity-50 block"></i>
+                    Awaiting intercepts...
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center/Right: Trading Dashboard -->
+        <main class="flex-1 p-4 overflow-y-auto bg-slate-950 flex flex-col gap-4">
+            
+            <!-- Top Row: Chart & Selected Stock Info -->
+            <div class="flex flex-col lg:flex-row gap-4 h-[55%]">
+                
+                <!-- Chart Panel -->
+                <div class="panel flex-1 flex flex-col p-4 relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold flex items-center gap-2" id="chart-title">
+                            Select a Stock
+                        </h2>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600 text-white transition">30D</button>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative w-full h-full">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Trading Panel -->
+                <div class="panel w-full lg:w-80 p-4 flex flex-col">
+                    <h3 class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-4 border-b border-slate-700 pb-2">Trade Execution</h3>
+                    
+                    <div id="trading-unselected" class="flex-1 flex items-center justify-center text-slate-500 text-sm text-center">
+                        Select an asset from the market list to initiate trades.
+                    </div>
+
+                    <div id="trading-selected" class="hidden flex-col h-full">
+                        <div class="flex justify-between items-end mb-6">
+                            <div>
+                                <h1 class="text-3xl font-bold mono" id="trade-ticker">TKR</h1>
+                                <p class="text-sm text-slate-400" id="trade-name">Company Name</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold mono" id="trade-price">$0.00</p>
+                                <p class="text-sm font-bold mono" id="trade-change">+0.00%</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 rounded p-3 border border-slate-700 mb-6 flex justify-between items-center">
+                            <span class="text-sm text-slate-400">Position</span>
+                            <span class="font-bold mono text-lg" id="trade-owned">0 Shares</span>
+                        </div>
+
+                        <div class="mt-auto space-y-4">
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1">Quantity</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="trade-qty" min="1" value="1" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-white mono focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div class="flex gap-2 mt-2">
+                                    <button onclick="setTradeQty('max-buy')" class="flex-1 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded text-slate-300">Max Buy</button>
+                                    <button onclick="setTradeQty('max-sell')" class="flex-1 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded text-slate-300">Max Sell</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 pt-2">
+                                <button onclick="executeTrade('buy')" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded shadow transition-colors flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-arrow-up"></i> BUY
+                                </button>
+                                <button onclick="executeTrade('sell')" class="flex-1 py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded shadow transition-colors flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-arrow-down"></i> SELL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Market Overview -->
+            <div class="panel flex-1 flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-slate-700 bg-slate-800 flex justify-between items-center">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Market Overview</h2>
+                </div>
+                <div class="overflow-auto w-full">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900 text-slate-400 text-xs uppercase sticky top-0 z-10 border-b border-slate-700">
+                            <tr>
+                                <th class="p-3 font-semibold w-1/4">Asset</th>
+                                <th class="p-3 font-semibold text-right">Price</th>
+                                <th class="p-3 font-semibold text-right">24h Change</th>
+                                <th class="p-3 font-semibold text-right">Holdings</th>
+                                <th class="p-3 font-semibold text-right">Value</th>
+                                <th class="p-3 font-semibold text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="market-list" class="text-sm divide-y divide-slate-700/50">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Article Reading Modal -->
+    <div id="article-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-bg p-4">
+        <div class="bg-slate-800 rounded-lg border border-slate-600 shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900 rounded-t-lg">
+                <div class="flex items-center gap-2 text-slate-400 text-sm">
+                    <i class="fa-solid fa-bolt text-yellow-500"></i> <span id="modal-source">Financial Times</span>
+                </div>
+                <button onclick="closeArticle()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <h2 id="modal-headline" class="text-2xl font-bold mb-4 text-white leading-tight">Headline Goes Here</h2>
+                <p id="modal-date" class="text-xs text-slate-500 mb-6 mono border-b border-slate-700 pb-4">Day X</p>
+                <div id="modal-body" class="text-slate-300 leading-relaxed space-y-4">
+                    Body text goes here...
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-700 bg-slate-900 rounded-b-lg flex justify-end">
+                <button onclick="closeArticle()" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-medium transition-colors">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-bg p-4">
+        <div class="bg-slate-800 border border-emerald-500 rounded-lg shadow-[0_0_50px_rgba(16,185,129,0.3)] max-w-md w-full p-8 text-center">
+            <div class="w-20 h-20 bg-emerald-900/50 text-emerald-400 border border-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-2">Billionaire Status Achieved</h2>
+            <p class="text-slate-300 mb-6">Your market manipulation and analysis skills are unmatched. You have conquered Wall Street.</p>
+            
+            <div class="bg-slate-900 rounded p-4 mb-8 text-left space-y-3 border border-slate-700">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Total Days:</span>
+                    <span class="font-bold text-white mono" id="win-days">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Final Net Worth:</span>
+                    <span class="font-bold text-emerald-400 mono" id="win-nw-text">$0</span>
+                </div>
+            </div>
+            
+            <button onclick="location.reload()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded shadow transition-transform active:scale-95">
+                Start New Fund
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 translate-y-full opacity-0 pointer-events-none">
+        <div class="bg-slate-800 border-l-4 border-blue-500 shadow-xl rounded p-4 flex items-start gap-3 w-80">
+            <div id="toast-icon" class="text-blue-500 mt-0.5"><i class="fa-solid fa-circle-info"></i></div>
+            <div>
+                <h4 id="toast-title" class="font-bold text-white text-sm">Notification</h4>
+                <p id="toast-msg" class="text-xs text-slate-400 mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'billionaire-terminal';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        let app, db, auth, userId;
+        let isFirebaseReady = false;
+
+        // Companies to trade
+        const COMPANIES = [
+            { id: 'NXT', name: 'NexaTech Industries', sector: 'Technology', basePrice: 150.00, vol: 0.04, drift: 1.002, color: '#3b82f6' },
+            { id: 'MDC', name: 'MediCure Pharma', sector: 'Healthcare', basePrice: 85.00, vol: 0.05, drift: 1.001, color: '#10b981' },
+            { id: 'ASX', name: 'AeroSpaceX', sector: 'Aerospace', basePrice: 45.00, vol: 0.08, drift: 1.000, color: '#8b5cf6' },
+            { id: 'BGB', name: 'BurgerBoy Inc.', sector: 'Retail', basePrice: 25.00, vol: 0.02, drift: 1.001, color: '#f59e0b' },
+            { id: 'ECV', name: 'EcoVolt Energy', sector: 'Energy', basePrice: 12.00, vol: 0.06, drift: 1.003, color: '#06b6d4' }
+        ];
+
+        // News templates (Names heavily obfuscated to require deduction)
+        const NEWS_TEMPLATES = [
+            // NXT (Tech) Context
+            { target: 'NXT', source: 'Silicon Insider', headline: 'Leaked Memo Hints at A.I. Breakthrough', text: 'An internal email leaked to the press suggests that a prominent Silicon Valley player has successfully passed the Turing test with their new neural processing architecture. If true, this could render competitor models obsolete overnight.', impact: 1.4, duration: 5 },
+            { target: 'NXT', source: 'Global Security Post', headline: 'Massive Data Breach Impacts Millions', text: 'Cybersecurity experts have traced a massive cache of user passwords sold on the dark web back to a major cloud infrastructure provider. The corporation has refused to comment, but regulatory bodies are opening investigations.', impact: 0.6, duration: 4 },
+            { target: 'NXT', source: 'Tech Tribune', headline: 'Semiconductor Shortage Hits Hard', text: 'Production lines are stalling for leading smart device manufacturers. Supply chain bottlenecks for crucial microchips mean quarterly shipping targets will be missed by a wide margin.', impact: 0.8, duration: 4 },
+            { target: 'NXT', source: 'Policy Watch', headline: 'Antitrust Probe Announced', text: 'Federal regulators are targeting a dominant search and software conglomerate. The investigation focuses on alleged monopolistic practices in their enterprise software division.', impact: 0.7, duration: 6 },
+            { target: 'NXT', source: 'Gadget Weekly', headline: 'Revolutionary Device Unveiled', text: 'A highly anticipated mixed-reality wearable from a tech titan just received glowing early reviews from industry critics, praising its seamless OS integration.', impact: 1.25, duration: 4 },
+            
+            // MDC (Pharma) Context
+            { target: 'MDC', source: 'Medical Tribune', headline: 'Phase 3 Trials Halted Indefinitely', text: 'Clinical trials for a highly anticipated cellular regeneration compound have been paused after reports of severe, unanticipated side effects. Analysts say this drug was supposed to account for 40% of future revenue.', impact: 0.4, duration: 6 },
+            { target: 'MDC', source: 'Health Digest', headline: 'Surprise FDA Approval Grants Market Monopoly', text: 'In a stunning reversal, regulators have fast-tracked approval for a groundbreaking synthetic insulin alternative. Competitors are years away from a viable alternative.', impact: 1.5, duration: 4 },
+            { target: 'MDC', source: 'Financial Times', headline: 'Patent Cliff Approaching', text: 'A blockbuster cholesterol management drug is about to lose exclusivity. The parent corporation faces an influx of cheap generic alternatives flooding the market next month.', impact: 0.75, duration: 5 },
+            { target: 'MDC', source: 'Science Journal', headline: 'Breakthrough in Gene Editing', text: 'Researchers at a leading biotech firm have published stellar peer-reviewed results demonstrating safe, targeted DNA modifications in adult subjects.', impact: 1.35, duration: 5 },
+            { target: 'MDC', source: 'Global News', headline: 'Contamination Found in Manufacturing', text: 'A prominent pharmaceutical supplier is voluntarily recalling millions of doses of over-the-counter medication after trace amounts of heavy metals were discovered in a key facility.', impact: 0.5, duration: 4 },
+            
+            // ASX (Aerospace) Context
+            { target: 'ASX', source: 'Space Frontiers', headline: 'Tragic Explosion on Launch Pad 4', text: 'A highly publicized heavy-lift rocket suffered a catastrophic failure during a static fire test today, completely destroying the payload and the launch structure. The cause is currently unknown.', impact: 0.3, duration: 7 },
+            { target: 'ASX', source: 'Defense Chronicle', headline: 'Department of Defense Awards Multi-Billion Contract', text: 'Beating out legacy contractors, a private space corporation has secured the exclusive rights to build the next generation of low-earth orbital defense satellites.', impact: 1.8, duration: 5 },
+            { target: 'ASX', source: 'Astro Weekly', headline: 'Interplanetary Mission Delayed', text: 'Ambitious plans to send a crewed mission to the red planet have been pushed back by three years due to unforeseen budget constraints and life-support engineering hurdles.', impact: 0.8, duration: 5 },
+            { target: 'ASX', source: 'Tech Wire', headline: 'Successful Deployment of Satellite Constellation', text: 'A massive global broadband initiative reached a major milestone today with the successful orbital deployment of its 500th communication node.', impact: 1.25, duration: 4 },
+            { target: 'ASX', source: 'Market Watchdog', headline: 'Rival Consortium Announces Cheaper Launch System', text: 'A new international coalition threatens the dominance of leading launch providers by unveiling a reusable booster design that slashes cost-to-orbit by 40%.', impact: 0.6, duration: 6 },
+            
+            // BGB (Retail/Food) Context
+            { target: 'BGB', source: 'Financial Times', headline: 'Supply Chain Snarl Leaves Shelves Empty', text: 'A strike at major shipping ports has severely impacted the supply lines of major global franchises. Many locations are reporting shortages of basic ingredients and goods.', impact: 0.75, duration: 4 },
+            { target: 'BGB', source: 'Pop Culture Weekly', headline: 'Viral Celebrity Endorsement Sparks Frenzy', text: 'The biggest pop star in the world just posted a video consuming a specific fast-food combo meal, declaring it the "best thing ever." Lines at franchise locations are wrapping around the block.', impact: 1.3, duration: 3 },
+            { target: 'BGB', source: 'Health Inspector', headline: 'Outbreak Linked to Produce Supplier', text: 'Health officials have traced a multi-state contamination outbreak directly to a major restaurant supplier. Thousands of locations have been forced to dump inventory.', impact: 0.5, duration: 5 },
+            { target: 'BGB', source: 'Economic Forum', headline: 'Minimum Wage Hike Squeezes Margins', text: 'Newly enacted labor legislation is set to drastically impact profitability for service industry giants that rely heavily on unskilled workforce volume.', impact: 0.85, duration: 4 },
+            { target: 'BGB', source: 'Business Insider', headline: 'Surge in Drive-Thru Efficiency', text: 'An AI-driven ordering and predictive prep system has significantly boosted quarterly sales metrics for an industry-leading consumer brand.', impact: 1.2, duration: 4 },
+            
+            // ECV (Energy) Context
+            { target: 'ECV', source: 'Eco News', headline: 'Breakthrough in Solid-State Battery Density', text: 'Researchers have published a paper detailing a new battery chemistry that holds three times the charge of current lithium-ion cells, without the fire risk. Manufacturing could scale within the year.', impact: 2.0, duration: 8 },
+            { target: 'ECV', source: 'Global Policy Watch', headline: 'Subsidies Slashed in New Government Budget', text: 'The newly passed federal budget completely guts the green energy subsidy program. Solar farm expansions and turbine deployments in three states are expected to be abandoned.', impact: 0.5, duration: 5 },
+            { target: 'ECV', source: 'Sunlight Journal', headline: 'Massive Installation Contract Signed', text: 'A record-breaking installation deal has been secured in the Sun Belt, promising to power over two million homes exclusively through newly deployed renewable tech.', impact: 1.4, duration: 4 },
+            { target: 'ECV', source: 'Geo-Politics Daily', headline: 'Rare Earth Mineral Export Ban', text: 'A major geopolitical shift has threatened crucial component supply lines. Manufacturers of next-gen energy storage are scrambling to secure raw materials.', impact: 0.7, duration: 5 },
+            { target: 'ECV', source: 'Engineering Today', headline: 'Turbine Efficiency Jumps 15%', text: 'New aerodynamic blade designs have dramatically boosted energy capture for offshore installations, significantly lowering the levelized cost of energy.', impact: 1.25, duration: 4 },
+            
+            // General Market (affects random stock)
+            { target: 'RANDOM', source: 'Market Watchdog', headline: 'Accounting Irregularities Probed', text: 'Whistleblowers have alerted authorities to alleged "creative accounting" practices designed to hide massive debt obligations at a Fortune 500 company. A formal audit is pending.', impact: 0.2, duration: 4 },
+            { target: 'RANDOM', source: 'Tabloid News', headline: 'Executive Caught in Scandal', text: 'Damning photos of a top corporate executive have surfaced online, causing immediate panic among institutional investors regarding leadership stability.', impact: 0.6, duration: 3 },
+            { target: 'RANDOM', source: 'Wall Street Journal', headline: 'Surprise Dividend Announced', text: 'A corporate board of directors has surprisingly approved a massive, unexpected dividend payout to shareholders, signaling immense confidence in cash flow.', impact: 1.5, duration: 3 },
+            { target: 'RANDOM', source: 'Financial Times', headline: 'Hostile Takeover Rumors Swirl', text: 'Activist investors are reportedly amassing capital to launch a hostile takeover bid, aiming to oust current management and restructure the corporation entirely.', impact: 1.3, duration: 4 }
+        ];
+
+        let state = {
+            day: 1,
+            cash: 10000.00,
+            portfolio: {}, 
+            history: {},   
+            currentPrices: {}, 
+            activeEvents: [], 
+            newsLog: [],      
+            selectedStock: null,
+            goal: 1000000000,
+            gameOver: false
+        };
+
+        let chartInstance = null;
+        let unreadNewsCount = 0;
+
+        // Formatting Helpers
+        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+        const fmtNum = (num) => new Intl.NumberFormat('en-US').format(num);
+        const fmtPct = (num) => (num > 0 ? '+' : '') + num.toFixed(2) + '%';
+
+        async function initSystem() {
+            if (!Object.keys(firebaseConfig).length) {
+                console.warn("No cloud environment detected. Running locally.");
+                setupNewGame(true);
+                return;
+            }
+
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                userId = auth.currentUser?.uid;
+                if (userId) {
+                    isFirebaseReady = true;
+                    await loadGame();
+                } else {
+                    setupNewGame(true);
+                }
+            } catch (error) {
+                console.error("Cloud sync initialization failed:", error);
+                setupNewGame(true);
+            }
+        }
+
+        async function saveGame() {
+            if (!isFirebaseReady || !userId) return;
+            try {
+                const saveRef = doc(db, 'artifacts', appId, 'users', userId, 'saves', 'terminalData');
+                await setDoc(saveRef, { state, unreadNewsCount });
+            } catch (error) {
+                console.error("Failed to sync progress to cloud:", error);
+            }
+        }
+
+        async function loadGame() {
+            try {
+                const saveRef = doc(db, 'artifacts', appId, 'users', userId, 'saves', 'terminalData');
+                const snap = await getDoc(saveRef);
+                
+                if (snap.exists()) {
+                    const data = snap.data();
+                    state = data.state;
+                    unreadNewsCount = data.unreadNewsCount || 0;
+                    setupNewGame(false); // Initialize without resetting data
+                    showToast('System Restored', 'Session data synced from cloud.');
+                } else {
+                    setupNewGame(true); // First time playing
+                }
+            } catch (error) {
+                console.error("Failed to load cloud save:", error);
+                setupNewGame(true);
+            }
+        }
+
+        function setupNewGame(resetData) {
+            if (resetData) {
+                state.day = 1;
+                state.cash = 10000.00;
+                state.activeEvents = [];
+                state.newsLog = [];
+                state.gameOver = false;
+                unreadNewsCount = 0;
+                
+                COMPANIES.forEach(c => {
+                    state.portfolio[c.id] = { shares: 0, avgPrice: 0 };
+                    state.currentPrices[c.id] = c.basePrice;
+                    state.history[c.id] = [];
+                    
+                    // Pre-fill 30 days of standard history
+                    let tempPrice = c.basePrice * 0.8; 
+                    for(let i=0; i<30; i++) {
+                        state.history[c.id].push(tempPrice);
+                        let move = (Math.random() * c.vol * 2) - c.vol;
+                        tempPrice = tempPrice * c.drift * (1 + move);
+                    }
+                    state.currentPrices[c.id] = tempPrice; 
+                });
+
+                state.selectedStock = COMPANIES[0].id;
+                logNews('System Boot', 'Trading terminal OS v3.1 initialized. Connection to global exchange established. Welcome, Operator. Your goal is 1 Billion USD. Study the intelligence feed carefully to anticipate market shifts.', 'System', true);
+            }
+
+            initChart();
+            updateUI();
+            renderNewsFeed();
+        }
+
+        function initChart() {
+            if(chartInstance) chartInstance.destroy();
+            
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => `Day -${30-i}`),
+                    datasets: [{
+                        label: 'Price',
+                        data: [],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) { return fmtMoney(context.parsed.y); }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#1e293b' } },
+                        y: { 
+                            grid: { color: '#1e293b' },
+                            ticks: { callback: (val) => '$' + val }
+                        }
+                    }
+                }
+            });
+            updateChartData();
+        }
+
+        function advanceDay() {
+            if (state.gameOver) return;
+
+            state.day++;
+
+            COMPANIES.forEach(c => {
+                let current = state.currentPrices[c.id];
+                let movePct = (Math.random() * c.vol * 2) - c.vol;
+                
+                let eventMultiplier = 1;
+                for (let i = state.activeEvents.length - 1; i >= 0; i--) {
+                    let ev = state.activeEvents[i];
+                    if (ev.target === c.id) {
+                        eventMultiplier *= ev.dailyMultiplier;
+                        ev.daysLeft--;
+                        if (ev.daysLeft <= 0) state.activeEvents.splice(i, 1);
+                    }
+                }
+
+                let newPrice = current * c.drift * (1 + movePct) * eventMultiplier;
+                if (newPrice < 0.05) newPrice = 0.05; 
+                
+                state.currentPrices[c.id] = newPrice;
+                state.history[c.id].push(newPrice);
+                
+                if (state.history[c.id].length > 60) state.history[c.id].shift();
+            });
+
+            // 15% chance per day to get a news event
+            if (Math.random() < 0.15) {
+                generateNewsEvent();
+            }
+
+            updateUI();
+            checkWinCondition();
+            saveGame(); // Save progress after day ends
+        }
+
+        function generateNewsEvent() {
+            let template = NEWS_TEMPLATES[Math.floor(Math.random() * NEWS_TEMPLATES.length)];
+            let targetId = template.target;
+            
+            if (targetId === 'RANDOM') {
+                targetId = COMPANIES[Math.floor(Math.random() * COMPANIES.length)].id;
+            }
+
+            let dailyMulti = Math.pow(template.impact, 1 / template.duration);
+            
+            state.activeEvents.push({
+                target: targetId,
+                dailyMultiplier: dailyMulti,
+                daysLeft: template.duration
+            });
+
+            logNews(template.headline, template.text, template.source);
+            showToast('Incoming Intelligence', template.headline);
+        }
+
+        function logNews(headline, text, source, isRead = false) {
+            const article = {
+                id: Date.now() + Math.random(),
+                day: state.day,
+                headline: headline,
+                text: text,
+                source: source,
+                read: isRead
+            };
+            state.newsLog.unshift(article);
+            if (!isRead) unreadNewsCount++;
+            renderNewsFeed();
+        }
+
+        function renderNewsFeed() {
+            const container = document.getElementById('news-container');
+            container.innerHTML = '';
+            
+            document.getElementById('news-count').textContent = `${unreadNewsCount} New`;
+            if(unreadNewsCount > 0) {
+                document.getElementById('news-count').classList.replace('bg-blue-900', 'bg-yellow-600');
+                document.getElementById('news-count').classList.replace('text-blue-300', 'text-yellow-100');
+            } else {
+                document.getElementById('news-count').classList.replace('bg-yellow-600', 'bg-blue-900');
+                document.getElementById('news-count').classList.replace('text-yellow-100', 'text-blue-300');
+            }
+
+            if (state.newsLog.length === 0) return;
+
+            state.newsLog.forEach(article => {
+                const item = document.createElement('div');
+                item.className = `p-3 bg-slate-900 cursor-pointer text-sm news-item ${article.read ? '' : 'news-unread'}`;
+                item.onclick = () => openArticle(article.id);
+                
+                item.innerHTML = `
+                    <div class="flex justify-between items-center mb-1 text-xs text-slate-500">
+                        <span class="mono">Day ${article.day}</span>
+                        <span>${article.source}</span>
+                    </div>
+                    <div class="font-semibold ${article.read ? 'text-slate-300' : 'text-white'} truncate">
+                        ${article.headline}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openArticle(id) {
+            const article = state.newsLog.find(a => a.id === id);
+            if (!article) return;
+
+            if (!article.read) {
+                article.read = true;
+                unreadNewsCount = Math.max(0, unreadNewsCount - 1);
+                renderNewsFeed();
+                saveGame(); // Save read status
+            }
+
+            document.getElementById('modal-source').textContent = article.source;
+            document.getElementById('modal-headline').textContent = article.headline;
+            document.getElementById('modal-date').textContent = `Logged: Day ${article.day}`;
+            document.getElementById('modal-body').textContent = article.text;
+            document.getElementById('article-modal').classList.remove('hidden');
+        }
+
+        function closeArticle() {
+            document.getElementById('article-modal').classList.add('hidden');
+        }
+
+        function selectStock(id) {
+            state.selectedStock = id;
+            updateChartData();
+            updateTradingPanel();
+            
+            document.querySelectorAll('.market-row').forEach(row => {
+                row.classList.remove('bg-slate-800');
+                if (row.dataset.id === id) row.classList.add('bg-slate-800');
+            });
+        }
+
+        function updateChartData() {
+            if (!state.selectedStock || !chartInstance) return;
+            
+            const comp = COMPANIES.find(c => c.id === state.selectedStock);
+            const hist = state.history[state.selectedStock];
+            
+            document.getElementById('chart-title').innerHTML = `
+                <span style="color: ${comp.color};"><i class="fa-solid fa-circle text-xs"></i></span>
+                ${comp.name} (${comp.id}) History
+            `;
+
+            const labels = hist.map((_, idx) => `Day ${state.day - (hist.length - 1) + idx}`);
+
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets[0].data = hist;
+            chartInstance.data.datasets[0].borderColor = comp.color;
+            
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            
+            let hex = comp.color.replace('#', '');
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            
+            gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.5)`);
+            gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.0)`);
+            
+            chartInstance.data.datasets[0].backgroundColor = gradient;
+            chartInstance.update();
+        }
+
+        function updateTradingPanel() {
+            if (!state.selectedStock) {
+                document.getElementById('trading-unselected').classList.remove('hidden');
+                document.getElementById('trading-selected').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('trading-unselected').classList.add('hidden');
+            document.getElementById('trading-selected').classList.remove('hidden');
+            document.getElementById('trading-selected').classList.add('flex');
+
+            const comp = COMPANIES.find(c => c.id === state.selectedStock);
+            const currentPrice = state.currentPrices[state.selectedStock];
+            const hist = state.history[state.selectedStock];
+            const prevPrice = hist.length > 1 ? hist[hist.length - 2] : currentPrice;
+            const change = currentPrice - prevPrice;
+            const changePct = (change / prevPrice) * 100;
+            const owned = state.portfolio[state.selectedStock].shares;
+
+            document.getElementById('trade-ticker').textContent = comp.id;
+            document.getElementById('trade-ticker').style.color = comp.color;
+            document.getElementById('trade-name').textContent = comp.name;
+            document.getElementById('trade-price').textContent = fmtMoney(currentPrice);
+            
+            const changeEl = document.getElementById('trade-change');
+            changeEl.textContent = fmtPct(changePct);
+            changeEl.className = `text-sm font-bold mono ${change >= 0 ? 'stock-up' : 'stock-down'}`;
+
+            document.getElementById('trade-owned').textContent = fmtNum(owned);
+            document.getElementById('trade-qty').value = 1;
+        }
+
+        function setTradeQty(type) {
+            if (!state.selectedStock) return;
+            const price = state.currentPrices[state.selectedStock];
+            const input = document.getElementById('trade-qty');
+            
+            if (type === 'max-buy') {
+                input.value = Math.floor(state.cash / price);
+            } else if (type === 'max-sell') {
+                input.value = state.portfolio[state.selectedStock].shares;
+            }
+        }
+
+        function executeTrade(type) {
+            if (!state.selectedStock) return;
+            
+            const qtyInput = document.getElementById('trade-qty');
+            const qty = parseInt(qtyInput.value);
+            
+            if (isNaN(qty) || qty <= 0) {
+                showToast('Trade Error', 'Invalid quantity.', 'error');
+                return;
+            }
+
+            const compId = state.selectedStock;
+            const price = state.currentPrices[compId];
+            const cost = price * qty;
+            const position = state.portfolio[compId];
+
+            if (type === 'buy') {
+                if (state.cash >= cost) {
+                    state.cash -= cost;
+                    let totalValueOld = position.shares * position.avgPrice;
+                    position.shares += qty;
+                    position.avgPrice = (totalValueOld + cost) / position.shares;
+                    showToast('Execution Confirmed', `BOUGHT ${qty} ${compId} @ ${fmtMoney(price)}`);
+                } else {
+                    showToast('Trade Error', 'Insufficient cash available.', 'error');
+                    return; // exit early, no save needed
+                }
+            } else if (type === 'sell') {
+                if (position.shares >= qty) {
+                    state.cash += cost;
+                    position.shares -= qty;
+                    if(position.shares === 0) position.avgPrice = 0; 
+                    showToast('Execution Confirmed', `SOLD ${qty} ${compId} @ ${fmtMoney(price)}`);
+                } else {
+                    showToast('Trade Error', 'Insufficient shares to sell.', 'error');
+                    return; // exit early, no save needed
+                }
+            }
+
+            updateUI();
+            saveGame(); // Save portfolio status
+        }
+
+        function updateUI() {
+            document.getElementById('date-display').textContent = `Day ${state.day} | Year ${Math.floor((state.day-1)/365) + 1}`;
+            document.getElementById('header-cash').textContent = fmtMoney(state.cash);
+            
+            let portfolioValue = 0;
+            COMPANIES.forEach(c => {
+                portfolioValue += state.portfolio[c.id].shares * state.currentPrices[c.id];
+            });
+            let netWorth = state.cash + portfolioValue;
+            document.getElementById('header-nw').textContent = fmtMoney(netWorth);
+
+            let pct = (netWorth / state.goal) * 100;
+            document.getElementById('goal-pct').textContent = pct.toFixed(4) + '%';
+            document.getElementById('goal-bar').style.width = Math.min(100, pct) + '%';
+
+            const tbody = document.getElementById('market-list');
+            tbody.innerHTML = '';
+
+            COMPANIES.forEach(comp => {
+                const currentPrice = state.currentPrices[comp.id];
+                const hist = state.history[comp.id];
+                const prevPrice = hist.length > 1 ? hist[hist.length - 2] : currentPrice;
+                const change = currentPrice - prevPrice;
+                const changePct = (change / prevPrice) * 100;
+                const isUp = change >= 0;
+                const owned = state.portfolio[comp.id].shares;
+                const val = owned * currentPrice;
+
+                const tr = document.createElement('tr');
+                tr.className = `market-row border-b border-slate-700/50 hover:bg-slate-800/50 cursor-pointer transition-colors ${state.selectedStock === comp.id ? 'bg-slate-800' : ''}`;
+                tr.dataset.id = comp.id;
+                tr.onclick = () => selectStock(comp.id);
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${comp.color}"></span>
+                            <div>
+                                <div class="font-bold mono text-white">${comp.id}</div>
+                                <div class="text-xs text-slate-500 truncate w-24 md:w-auto">${comp.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3 text-right font-mono">${fmtMoney(currentPrice)}</td>
+                    <td class="p-3 text-right font-mono ${isUp ? 'stock-up' : 'stock-down'}">${fmtPct(changePct)}</td>
+                    <td class="p-3 text-right font-mono text-slate-300">${fmtNum(owned)}</td>
+                    <td class="p-3 text-right font-mono text-white">${fmtMoney(val)}</td>
+                    <td class="p-3 text-center">
+                        <button class="text-slate-400 hover:text-blue-400"><i class="fa-solid fa-crosshairs"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (state.selectedStock) {
+                updateChartData();
+                updateTradingPanel();
+            }
+        }
+
+        let toastTimeout;
+        function showToast(title, msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').textContent = msg;
+            const icon = document.getElementById('toast-icon');
+            
+            if (type === 'error') {
+                toast.classList.replace('border-blue-500', 'border-rose-500');
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i>';
+            } else {
+                 toast.classList.replace('border-rose-500', 'border-blue-500');
+                 icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+
+            toast.classList.remove('translate-y-full', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+            }, 3000);
+        }
+
+        function checkWinCondition() {
+            let portfolioValue = 0;
+            COMPANIES.forEach(c => {
+                portfolioValue += state.portfolio[c.id].shares * state.currentPrices[c.id];
+            });
+            let netWorth = state.cash + portfolioValue;
+
+            if (netWorth >= state.goal && !state.gameOver) {
+                state.gameOver = true;
+                document.getElementById('win-days').textContent = state.day;
+                document.getElementById('win-nw-text').textContent = fmtMoney(netWorth);
+                document.getElementById('victory-modal').classList.remove('hidden');
+                saveGame(); // Save victory state
+            }
+        }
+
+        // Bind functions to window so HTML inline onclick events can access them within the module scope
+        window.advanceDay = advanceDay;
+        window.setTradeQty = setTradeQty;
+        window.executeTrade = executeTrade;
+        window.closeArticle = closeArticle;
+
+        // Start App
+        window.onload = initSystem;
+
+    </script>
+</body>
+</html>
