@@ -1,321 +1,705 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bioforge</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-       
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f1f5f9;
-            overflow-x: hidden;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bioforge</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-        .animal-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
-            position: relative;
-        }
 
-        .animal-card:hover {
-            transform: translateY(-5px);
-            border-color: #6366f1;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
+		body {
+			font-family: 'Inter', sans-serif;
+			background-color: #0f172a;
+			color: #f1f5f9;
+			overflow-x: hidden;
+		}
 
-        .rarity-normal { color: #cbd5e1; }
-        .rarity-common { color: #94a3b8; }
-        .rarity-uncommon { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
-        .rarity-rare { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.3); }
-        .rarity-epic { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
-        .rarity-mythical { color: #fb7185; text-shadow: 0 0 15px rgba(251, 113, 133, 0.5); font-weight: bold; }
-        .rarity-godly { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.7); font-weight: 900; animation: pulse 2s infinite; }
-        .rarity-ascendant { color: #22d3ee; text-shadow: 0 0 25px rgba(34, 211, 238, 0.8); font-weight: 900; }
-        .rarity-omni { color: #ffffff; text-shadow: 0 0 30px #fff, 0 0 50px #6366f1; font-weight: 900; animation: rainbow-glow 3s linear infinite; }
 
-        @keyframes rainbow-glow {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
+		.animal-card {
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			background: linear-gradient(145deg, #1e293b, #0f172a);
+			border: 1px solid #334155;
+			position: relative;
+		}
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
 
-        .progress-bar { transition: width 0.1s linear; }
-        .cooldown-bar { transition: height 0.3s linear; }
-        .floating { animation: floating 3s ease-in-out infinite; }
+		.animal-card:hover {
+			transform: translateY(-5px);
+			border-color: #6366f1;
+			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+		}
 
-        @keyframes floating {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+		.rarity-normal {
+			color: #cbd5e1;
+		}
 
-        .modal-backdrop {
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(4px);
-        }
 
-        .egg-selector button.active {
-            border-color: #6366f1;
-            background-color: rgba(99, 102, 241, 0.2);
-            transform: scale(1.05);
-        }
+		.rarity-common {
+			color: #94a3b8;
+		}
 
-        .warborn-glint {
-            box-shadow: 0 0 15px #ff4757;
-            border-color: #ff4757 !important;
-        }
 
-        .chat-bubble {
-            position: relative;
-            background: #1e293b;
-            border-radius: 1rem;
-            padding: 1rem;
-            max-width: 90%;
-            border: 1px solid #334155;
-        }
-    </style>
+		.rarity-uncommon {
+			color: #4ade80;
+			text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+		}
+
+
+		.rarity-rare {
+			color: #60a5fa;
+			text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+		}
+
+
+		.rarity-epic {
+			color: #c084fc;
+			text-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+		}
+
+
+		.rarity-mythical {
+			color: #fb7185;
+			text-shadow: 0 0 15px rgba(251, 113, 133, 0.5);
+			font-weight: bold;
+		}
+
+
+		.rarity-godly {
+			color: #facc15;
+			text-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
+			font-weight: 900;
+			animation: pulse 2s infinite;
+		}
+
+
+		.rarity-ascendant {
+			color: #22d3ee;
+			text-shadow: 0 0 25px rgba(34, 211, 238, 0.8);
+			font-weight: 900;
+		}
+
+
+		.rarity-omni {
+			color: #ffffff;
+			text-shadow: 0 0 30px #fff, 0 0 50px #6366f1;
+			font-weight: 900;
+			animation: rainbow-glow 3s linear infinite;
+		}
+
+
+		@keyframes rainbow-glow {
+			0% {
+				filter: hue-rotate(0deg);
+			}
+
+
+			100% {
+				filter: hue-rotate(360deg);
+			}
+		}
+
+
+		@keyframes pulse {
+			0% {
+				opacity: 1;
+			}
+
+
+			50% {
+				opacity: 0.7;
+			}
+
+
+			100% {
+				opacity: 1;
+			}
+		}
+
+
+		.progress-bar {
+			transition: width 0.1s linear;
+		}
+
+
+		.cooldown-bar {
+			transition: height 0.3s linear;
+		}
+
+
+		.floating {
+			animation: floating 3s ease-in-out infinite;
+		}
+
+
+		@keyframes floating {
+			0% {
+				transform: translateY(0px);
+			}
+
+
+			50% {
+				transform: translateY(-10px);
+			}
+
+
+			100% {
+				transform: translateY(0px);
+			}
+		}
+
+
+		::-webkit-scrollbar {
+			width: 8px;
+		}
+
+
+		::-webkit-scrollbar-track {
+			background: #0f172a;
+		}
+
+
+		::-webkit-scrollbar-thumb {
+			background: #334155;
+			border-radius: 4px;
+		}
+
+
+		.modal-backdrop {
+			background-color: rgba(0, 0, 0, 0.8);
+			backdrop-filter: blur(4px);
+			transition: opacity 0.3s ease;
+		}
+
+
+		/* Smooth Modal Bobbing Animations */
+		@keyframes slideInBob {
+			0% {
+				transform: translateY(-100vh);
+				opacity: 0;
+			}
+
+
+			60% {
+				transform: translateY(20px);
+				opacity: 1;
+			}
+
+
+			80% {
+				transform: translateY(-10px);
+			}
+
+
+			100% {
+				transform: translateY(0);
+				opacity: 1;
+			}
+		}
+
+
+		@keyframes slideOutTop {
+			0% {
+				transform: translateY(0);
+				opacity: 1;
+			}
+
+
+			100% {
+				transform: translateY(-100vh);
+				opacity: 0;
+			}
+		}
+
+
+		.modal-slide-in {
+			animation: slideInBob 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+		}
+
+
+		.modal-slide-out {
+			animation: slideOutTop 0.4s ease-in forwards;
+		}
+
+
+		.egg-selector button.active {
+			border-color: #6366f1;
+			background-color: rgba(99, 102, 241, 0.2);
+			transform: scale(1.05);
+		}
+
+
+		.warborn-glint {
+			box-shadow: 0 0 15px #ff4757;
+			border-color: #ff4757 !important;
+		}
+
+
+		.orb-glow {
+			animation: orb-pulse 2s infinite alternate;
+		}
+
+
+		@keyframes orb-pulse {
+			0% {
+				transform: scale(1);
+				filter: brightness(1);
+			}
+
+
+			100% {
+				transform: scale(1.1);
+				filter: brightness(1.2);
+			}
+		}
+
+
+		.knowledge-tab.active {
+			border-bottom-color: #a855f7;
+			color: #c084fc;
+			background-color: rgba(168, 85, 247, 0.1);
+		}
+	</style>
 </head>
+
+
 <body class="p-4 md:p-8">
-    <div class="max-w-[1600px] mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl">
-            <div class="flex items-center gap-4">
-                <div>
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Bio <span class="text-indigo-500">Forge</span> </h1>
-                    <p class="text-slate-400">Discover species and negotiate with buyers!</p>
-                </div>
-            </div>
-            <div class="flex gap-2 md:gap-4 items-center">
-                <button id="open-market" class="p-3 bg-amber-900/50 hover:bg-amber-800 rounded-xl transition-all border border-amber-500/30 relative" title="Global Market">
+	<div class="max-w-[1600px] mx-auto">
+		<header
+			class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl">
+			<div class="flex items-center gap-4">
+				<div>
+					<h1 class="text-3xl font-extrabold text-white tracking-tight">Bio
+						<span class="text-indigo-500">Forge</span> </h1>
+					<p class="text-slate-400">Discover species and negotiate with buyers!</p>
+				</div>
+			</div>
+			<div class="flex gap-2 md:gap-4 items-center">
+				<button onclick="gameState.openPotions()" class="p-3 bg-emerald-900/50 hover:bg-emerald-800 rounded-xl transition-all border border-emerald-500/30 relative" title="Potion Bag">
+                    <span class="text-2xl">🧪</span>
+                    <div id="potions-badge" class="absolute -top-1 -right-1 text-[9px] bg-emerald-500 font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-slate-800">0</div>
+                </button>
+				<button onclick="gameState.openWheel()" class="p-3 bg-pink-900/50 hover:bg-pink-800 rounded-xl transition-all border border-pink-500/30 relative shadow-[0_0_15px_rgba(236,72,153,0.3)]" title="Hourly Reward">
+                    <span class="text-2xl">🎁</span>
+                    <div id="wheel-notif" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full border-2 border-slate-800"></div>
+                    <div id="wheel-timer" class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[8px] bg-slate-800 px-1 rounded font-mono text-pink-300">60:00</div>
+                </button>
+				<button onclick="gameState.openKnowledge()" class="p-3 bg-purple-900/50 hover:bg-purple-800 rounded-xl transition-all border border-purple-500/30" title="Book of Knowledge">
+                    <span class="text-2xl">🔍</span>
+                </button>
+				<button id="open-market" class="p-3 bg-amber-900/50 hover:bg-amber-800 rounded-xl transition-all border border-amber-500/30 relative" title="Global Market">
                     <span class="text-2xl">🏪</span>
                     <div id="market-notif" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-slate-800"></div>
                 </button>
-                <button id="open-cryo" class="p-3 bg-cyan-900/50 hover:bg-cyan-800 rounded-xl transition-all border border-cyan-500/30" title="Cryogenic Chamber">
+				<button id="open-cryo" class="p-3 bg-cyan-900/50 hover:bg-cyan-800 rounded-xl transition-all border border-cyan-500/30" title="Cryogenic Chamber">
                     <span class="text-2xl">🌵</span>
                 </button>
-                <button id="open-journal" class="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all relative" title="Mutation Journal">
+				<button id="open-journal" class="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all relative" title="Mutation Journal">
                     <span class="text-2xl">📖</span>
                     <div id="journal-notif" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-slate-800"></div>
                 </button>
-                <div class="h-10 w-px bg-slate-700"></div>
-                <div class="text-right">
-                    <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Total Budget</p>
-                    <p id="money-display" class="text-2xl font-mono font-bold text-emerald-400">$250</p>
-                    <p id="income-display" class="text-[10px] font-mono text-emerald-500/80">+$0/s</p>
-                </div>
-                <div class="h-10 w-px bg-slate-700"></div>
-                <div class="text-right">
-                    <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Zoo Pop.</p>
-                    <p id="pop-display" class="text-2xl font-mono font-bold text-indigo-400">0/24</p>
-                </div>
-            </div>
-        </header>
+				<div class="h-10 w-px bg-slate-700"></div>
+				<div class="text-right">
+					<p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Total Budget</p>
+					<p id="money-display" class="text-2xl font-mono font-bold text-emerald-400">$250</p>
+					<p id="income-display" class="text-[10px] font-mono text-emerald-500/80">+$0/s</p>
+				</div>
+				<div class="h-10 w-px bg-slate-700"></div>
+				<div class="text-right">
+					<p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Zoo Pop.</p>
+					<p id="pop-display" class="text-2xl font-mono font-bold text-indigo-400">0/24</p>
+				</div>
+			</div>
+		</header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
-            <!-- 1. INCUBATOR -->
-            <div class="lg:col-span-3 space-y-6">
-                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🥚</span> 1. Incubator</h2>
-                    <div class="egg-selector grid grid-cols-2 gap-2 mb-4">
-                        <button id="egg-tier-0" class="active flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
-                            <span class="text-xl">🥚</span>
-                            <span class="text-[10px] font-bold uppercase mt-1">Standard</span>
-                            <span class="text-[9px] text-slate-400">$100</span>
-                        </button>
-                        <button id="egg-tier-1" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
-                            <span class="text-xl">✨</span>
-                            <span class="text-[10px] font-bold uppercase mt-1">Great</span>
-                            <span class="text-[9px] text-slate-400">$1,500</span>
-                        </button>
-                        <button id="egg-tier-2" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
-                            <span class="text-xl">💎</span>
-                            <span class="text-[10px] font-bold uppercase mt-1">Ultra</span>
-                            <span class="text-[9px] text-slate-400">$8,500</span>
-                        </button>
-                        <button id="egg-tier-3" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+			<!-- 1. INCUBATOR -->
+			<div class="lg:col-span-3 space-y-6">
+				<div
+					class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full flex flex-col justify-between">
+					<div>
+						<h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🥚</span> 1. Incubator</h2>
+						<div class="egg-selector grid grid-cols-2 gap-2 mb-4">
+							<button id="egg-tier-0" class="active flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                                <span class="text-xl">🥚</span>
+                                <span class="text-[10px] font-bold uppercase mt-1">Standard</span>
+                                <span class="text-[9px] text-slate-400">$100</span>
+                            </button>
+							<button id="egg-tier-1" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                                <span class="text-xl">✨</span>
+                                <span class="text-[10px] font-bold uppercase mt-1">Great</span>
+                                <span class="text-[9px] text-slate-400">$1,500</span>
+                            </button>
+							<button id="egg-tier-2" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
+                                <span class="text-xl">💎</span>
+                                <span class="text-[10px] font-bold uppercase mt-1">Ultra</span>
+                                <span class="text-[9px] text-slate-400">$8,500</span>
+                            </button>
+							<button id="egg-tier-3" class="flex flex-col items-center p-2 rounded-lg border-2 border-slate-700 bg-slate-900 transition-all">
                             <span class="text-xl">🌌</span>
                             <span class="text-[10px] font-bold uppercase mt-1">Omega</span>
                             <span class="text-[9px] text-slate-400">$30,000</span>
                         </button>
-                    </div>
-                    <div id="hatch-zone" class="relative bg-slate-900 rounded-xl aspect-square flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-700 mb-4">
-                        <div id="egg-container" class="text-8xl floating cursor-pointer select-none">🥚</div>
-                        <div id="hatch-overlay" class="hidden absolute inset-0 bg-indigo-600/20 flex items-center justify-center backdrop-blur-sm">
-                            <div class="text-center">
-                                <div class="text-2xl font-bold mb-2 text-white">HATCHING...</div>
-                                <div class="w-40 h-2 bg-slate-800 rounded-full overflow-hidden mx-auto">
-                                    <div id="hatch-progress" class="progress-bar h-full bg-white w-0"></div>
-                                </div>
+						</div>
+
+
+						<!-- Loot Egg Button -->
+						<button id="egg-tier-4" class="w-full flex items-center justify-between p-3 mb-4 bg-gradient-to-r from-amber-600/20 to-yellow-500/20 hover:from-amber-600/30 hover:to-yellow-500/30 rounded-xl border-2 border-amber-500/40 transition-all text-left">
+                        <div class="flex items-center gap-2">
+                            <span class="text-3xl">⭐</span>
+                            <div>
+                                <p class="text-xs font-bold text-amber-400 uppercase">Loot Egg</p>
+                                <p id="billion-egg-cooldown-text" class="text-[9px] text-slate-400 font-mono">Ready to Open</p>
                             </div>
                         </div>
-                    </div>
-                    <button id="hatch-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors shadow-lg active:scale-95">BUY EGG ($100)</button>
-                </div>
-            </div>
+                        <span class="text-xs font-mono font-bold text-emerald-400">$1B / 1 Ticket</span>
+                    </button>
 
-            <!-- 2. HABITATS -->
-            <div class="lg:col-span-4">
-                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full flex flex-col">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold flex items-center gap-2"><span>🏡</span> 2. Habitats</h2>
-                        <button onclick="gameState.sortByRarity()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-[10px] uppercase font-bold transition-colors">Sort</button>
-                    </div>
-                    <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[700px] pr-2"></div>
-                    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-500 italic py-20">
-                        <span class="text-4xl mb-2">🏜️</span> No animals yet.
-                    </div>
-                </div>
-            </div>
 
-            <!-- 3. GENE LAB & UPGRADES -->
-            <div class="lg:col-span-3 space-y-6">
-                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
-                    <h2 class="text-xl font-bold flex items-center gap-2 mb-4"><span>🧬</span> 3. Gene Lab</h2>
-                    <div class="grid grid-cols-2 gap-2 mb-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                        <div class="flex flex-col items-center">
-                            <div id="parent-1" class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
-                                <span class="emoji text-3xl">?</span>
-                                <span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
-                            </div>
-                            <span class="text-[9px] text-slate-500 mt-1 uppercase font-bold">Source</span>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <div id="parent-2" class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden">
-                                <span class="emoji text-3xl">?</span>
-                                <span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
-                            </div>
-                            <span class="text-[9px] text-slate-500 mt-1 uppercase font-bold">Target</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <button id="lab-breed-btn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">HYBRID BREED ($500)</button>
-                        <button id="lab-transfer-btn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">TRANSFER GENE ($2,500)</button>
-                    </div>
-                </div>
+						<div id="hatch-zone"
+							class="relative bg-slate-900 rounded-xl aspect-square flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-700 mb-4">
+							<div id="egg-container" class="text-8xl floating cursor-pointer select-none">🥚</div>
+							<div id="hatch-overlay"
+								class="hidden absolute inset-0 bg-indigo-600/20 flex items-center justify-center backdrop-blur-sm">
+								<div class="text-center">
+									<div class="text-2xl font-bold mb-2 text-white">HATCHING...</div>
+									<div class="w-40 h-2 bg-slate-800 rounded-full overflow-hidden mx-auto">
+										<div id="hatch-progress" class="progress-bar h-full bg-white w-0"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<button id="hatch-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors shadow-lg active:scale-95">BUY EGG ($100)</button>
+				</div>
+			</div>
 
-                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🚀</span> 4. Upgrades</h2>
-                    <div class="space-y-3">
-                        <button id="upg-luck" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-indigo-500 transition-all">
+
+			<!-- 2. HABITATS -->
+			<div class="lg:col-span-4">
+				<div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 h-full flex flex-col">
+					<div class="flex justify-between items-center mb-6">
+						<h2 class="text-xl font-bold flex items-center gap-2"><span>🏡</span> 2. Habitats</h2>
+						<button onclick="gameState.sortByRarity()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-[10px] uppercase font-bold transition-colors">Sort</button>
+					</div>
+					<div id="inventory-grid"
+						class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto max-h-[700px] pr-2"></div>
+					<div id="empty-state"
+						class="flex-1 flex flex-col items-center justify-center text-slate-500 italic py-20">
+						<span class="text-4xl mb-2">🏜️</span> No animals yet.
+					</div>
+				</div>
+			</div>
+
+
+			<!-- 3. GENE LAB & UPGRADES -->
+			<div class="lg:col-span-3 space-y-6">
+				<div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 relative">
+					<div class="flex justify-between items-center mb-4">
+						<h2 class="text-xl font-bold flex items-center gap-2"><span>🧬</span> 3. Gene Lab</h2>
+						<button onclick="gameState.openLabInventory()" class="p-2 bg-indigo-900/50 hover:bg-indigo-800 rounded-xl transition-all border border-indigo-500/30 text-xl" title="Mutation Inventory">🎒</button>
+					</div>
+					<div class="grid grid-cols-2 gap-2 mb-4 bg-slate-900 p-3 rounded-xl border border-slate-700">
+						<div class="flex flex-col items-center">
+							<div id="parent-1" onclick="gameState.handleSlotClick(0)"
+								class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden cursor-pointer hover:border-indigo-500 transition-colors">
+								<span class="emoji text-3xl">?</span>
+								<span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
+							</div>
+							<span class="text-[9px] text-slate-400 mt-1 uppercase font-bold text-center">Slot 1<br><span class="text-[7px] text-red-400">(Sacrifice / Orb)</span></span>
+						</div>
+						<div class="flex flex-col items-center">
+							<div id="parent-2" onclick="gameState.handleSlotClick(1)"
+								class="w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border border-slate-700 shadow-inner relative overflow-hidden cursor-pointer hover:border-indigo-500 transition-colors">
+								<span class="emoji text-3xl">?</span>
+								<span class="mut-tag text-[7px] font-bold absolute bottom-1 px-1 bg-black/50 rounded truncate w-full text-center"></span>
+							</div>
+							<span class="text-[9px] text-slate-400 mt-1 uppercase font-bold text-center">Slot 2<br><span class="text-[7px] text-emerald-400">(Keep / Target)</span></span>
+						</div>
+					</div>
+					<div class="grid grid-cols-1 gap-2">
+						<button id="lab-extract-btn" disabled class="w-full py-2 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">EXTRACT ($1,000,000,000)</button>
+						<button id="lab-transfer-btn" disabled class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">TRANSFER GENE ($2,500)</button>
+						<button id="lab-breed-btn" disabled class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg">HYBRID BREED ($500)</button>
+					</div>
+				</div>
+
+
+				<!-- Active Boosts UI -->
+				<div id="active-boosts-container"
+					class="hidden bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+					<h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>⚡</span> Active Boosts</h2>
+					<div class="space-y-2" id="boosts-list"></div>
+				</div>
+
+
+				<div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+					<h2 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🚀</span> 4. Upgrades</h2>
+					<div class="space-y-3">
+						<button id="upg-luck" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-indigo-500 transition-all">
                             <div class="text-left"><p class="text-xs font-bold uppercase text-indigo-400">Luck</p><p id="luck-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
                             <p id="luck-cost" class="text-sm font-mono font-bold text-emerald-400">$300</p>
                         </button>
-                        <button id="upg-profit" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-emerald-500 transition-all">
+						<button id="upg-profit" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-emerald-500 transition-all">
                             <div class="text-left"><p class="text-xs font-bold uppercase text-emerald-400">Profit</p><p id="profit-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
                             <p id="profit-cost" class="text-sm font-mono font-bold text-emerald-400">$500</p>
                         </button>
-                        <button id="upg-maint" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-yellow-500 transition-all">
+						<button id="upg-maint" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-yellow-500 transition-all">
                             <div class="text-left"><p class="text-xs font-bold uppercase text-yellow-400">Maintenance</p><p id="maint-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
                             <p id="maint-cost" class="text-sm font-mono font-bold text-emerald-400">$200</p>
                         </button>
-                    </div>
-                </div>
-            </div>
+						<button id="upg-pop" class="w-full flex justify-between items-center p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-blue-500 transition-all">
+                            <div class="text-left"><p class="text-xs font-bold uppercase text-blue-400">Capacity</p><p id="pop-level" class="text-[10px] text-slate-500">Lv. 1</p></div>
+                            <p id="pop-cost" class="text-sm font-mono font-bold text-emerald-400">$10,000</p>
+                        </button>
+					</div>
+				</div>
+			</div>
 
-            <!-- 5. SIDE MAINTENANCE -->
-            <div class="lg:col-span-2 space-y-4">
-                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
-                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>💩</span> Scoop</h2>
-                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
-                        <div id="cooldown-scoop" class="cooldown-bar absolute bottom-0 left-0 w-full bg-emerald-600/20"></div>
-                        <button onclick="gameState.doMaintenance('scoop')" id="btn-scoop" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-emerald-500/10 transition-colors">
+
+			<!-- 5. SIDE MAINTENANCE -->
+			<div class="lg:col-span-2 space-y-4">
+				<div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+					<h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>💩</span> Scoop</h2>
+					<div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+						<div id="cooldown-scoop" class="cooldown-bar absolute bottom-0 left-0 w-full bg-emerald-600/20">
+						</div>
+						<button onclick="gameState.doMaintenance('scoop')" id="btn-scoop" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-emerald-500/10 transition-colors">
                             <span class="text-2xl">💩</span>
                             <span id="text-scoop" class="text-[10px] font-bold uppercase">Ready</span>
                         </button>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
-                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🥬</span> Feed</h2>
-                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
-                        <div id="cooldown-feed" class="cooldown-bar absolute bottom-0 left-0 w-full bg-blue-600/20"></div>
-                        <button onclick="gameState.doMaintenance('feed')" id="btn-feed" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-blue-500/10 transition-colors">
+					</div>
+				</div>
+				<div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+					<h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🥬</span> Feed</h2>
+					<div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+						<div id="cooldown-feed" class="cooldown-bar absolute bottom-0 left-0 w-full bg-blue-600/20">
+						</div>
+						<button onclick="gameState.doMaintenance('feed')" id="btn-feed" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-blue-500/10 transition-colors">
                             <span class="text-2xl">🥬</span>
                             <span id="text-feed" class="text-[10px] font-bold uppercase">Ready</span>
                         </button>
-                    </div>
-                </div>
-                <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
-                    <h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🖐️</span> Pet</h2>
-                    <div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
-                        <div id="cooldown-pet" class="cooldown-bar absolute bottom-0 left-0 w-full bg-pink-600/20"></div>
-                        <button onclick="gameState.doMaintenance('pet')" id="btn-pet" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-pink-500/10 transition-colors">
+					</div>
+				</div>
+				<div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700">
+					<h2 class="text-sm font-bold mb-2 flex items-center gap-2"><span>🖐️</span> Pet</h2>
+					<div class="relative w-full h-20 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+						<div id="cooldown-pet" class="cooldown-bar absolute bottom-0 left-0 w-full bg-pink-600/20">
+						</div>
+						<button onclick="gameState.doMaintenance('pet')" id="btn-pet" class="absolute inset-0 w-full h-full text-white flex flex-col items-center justify-center gap-1 hover:bg-pink-500/10 transition-colors">
                             <span class="text-2xl">🖐️</span>
                             <span id="text-pet" class="text-[10px] font-bold uppercase">Ready</span>
                         </button>
-                    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- MODALS -->
+
+
+	<!-- POTIONS BAG MODAL -->
+	<div id="potions-modal" class="fixed inset-0 z-[90] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-emerald-700/50 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden relative shadow-2xl flex flex-col">
+			<div class="p-6 border-b border-emerald-800 flex justify-between items-center bg-emerald-950/20">
+				<h2 class="text-2xl font-bold flex items-center gap-2 text-emerald-400"><span>🧪</span> Potion Bag</h2>
+				<div class="flex items-center gap-4">
+					<span id="potions-count-text" class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400">0 / 100</span>
+					<button onclick="gameState.closeModal('potions-modal')" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+				</div>
+			</div>
+			<div class="p-6 overflow-y-auto flex-1">
+				<div id="potions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- Potions populated via JavaScript -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- REWARD MODAL -->
+	<div id="wheel-modal" class="fixed inset-0 z-[90] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-pink-700/50 rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl flex flex-col text-center">
+			<div class="p-6 border-b border-pink-900 flex justify-between items-center bg-pink-950/20">
+				<h2 class="text-2xl font-bold flex items-center gap-2 text-pink-400"><span>🎁</span> Hourly Reward</h2>
+				<button onclick="if(!gameState.isSpinning) gameState.closeModal('wheel-modal')" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+			</div>
+			<div class="p-8 flex flex-col items-center">
+				<p class="text-slate-300 text-sm mb-4">Play for 1 hour to earn a free reward drop!</p>
+				<div id="wheel-display"
+					class="w-full h-32 bg-slate-800 rounded-xl border border-slate-700 flex flex-col items-center justify-center text-lg font-bold text-white mb-6 shadow-inner relative overflow-hidden transition-all duration-100">
+					<span id="wheel-result-emoji" class="text-4xl mb-2">🎁</span>
+					<span id="wheel-result-text">Ready to open?</span>
+				</div>
+				<button id="spin-btn" onclick="gameState.spinWheel()" class="w-full py-4 bg-pink-600 hover:bg-pink-500 disabled:bg-slate-700 disabled:text-slate-500 rounded-xl font-bold text-white transition-colors shadow-lg text-lg">OPEN REWARD (0 Available)</button>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="knowledge-modal" class="fixed inset-0 z-[90] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-purple-700/50 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
+			<div class="p-6 border-b border-purple-900 flex justify-between items-center bg-purple-950/20">
+				<h2 class="text-2xl font-bold flex items-center gap-2 text-purple-400"><span>🔍</span> Book of Knowledge
+				</h2>
+				<button onclick="gameState.closeModal('knowledge-modal')" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+			</div>
+			<div class="flex overflow-x-auto border-b border-slate-700 bg-slate-800/50">
+				<button onclick="gameState.switchKnowledgeTab('mutations')" id="k-tab-mutations" class="knowledge-tab active flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Mutations</button>
+				<button onclick="gameState.switchKnowledgeTab('animals')" id="k-tab-animals" class="knowledge-tab flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Animals</button>
+				<button onclick="gameState.switchKnowledgeTab('purity')" id="k-tab-purity" class="knowledge-tab flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Purity</button>
+				<button onclick="gameState.switchKnowledgeTab('cryo')" id="k-tab-cryo" class="knowledge-tab flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Cryogenic Lab</button>
+				<button onclick="gameState.switchKnowledgeTab('fermentation')" id="k-tab-fermentation" class="knowledge-tab flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Fermentation</button>
+				<button onclick="gameState.switchKnowledgeTab('rewards')" id="k-tab-rewards" class="knowledge-tab flex-1 py-3 px-4 font-bold text-xs uppercase text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap">Rewards</button>
+			</div>
+			<div id="knowledge-content" class="p-6 overflow-y-auto flex-1 text-sm text-slate-300">
+				<!-- Content injected via JS -->
+			</div>
+		</div>
+	</div>
+
+
+	<div id="lab-inventory-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-indigo-700/50 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden relative shadow-2xl flex flex-col">
+			<div class="p-6 border-b border-indigo-800 flex justify-between items-center bg-indigo-950/20">
+				<h2 class="text-2xl font-bold flex items-center gap-2 text-indigo-400"><span>🎒</span> Mutation
+					Inventory</h2>
+				<button onclick="gameState.closeModal('lab-inventory-modal')" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+			</div>
+			<div class="p-6 overflow-y-auto">
+				<div id="lab-inventory-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="journal-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
+			<div class="p-6 border-b border-slate-800 flex justify-between items-center">
+				<h2 class="text-2xl font-bold flex items-center gap-2"><span class="text-indigo-400">📖</span> Mutation
+					Journal</h2>
+				<button id="close-journal" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+			</div>
+			<div class="p-6 overflow-y-auto">
+				<div id="journal-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="detail-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl flex flex-col">
+			<div id="detail-content" class="p-8 flex flex-col items-center text-center"></div>
+			<button id="close-detail" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl">&times;</button>
+		</div>
+	</div>
+
+
+	<div id="list-modal" class="fixed inset-0 z-[80] flex items-center justify-center p-4 hidden">
+		<div class="modal-backdrop absolute inset-0"></div>
+		<div
+			class="modal-inner bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-6 relative shadow-2xl flex flex-col gap-4">
+			<h2 class="text-xl font-bold text-white mb-2">List on Player Market</h2>
+			<div>
+				<label class="text-xs text-slate-400 font-bold uppercase">Your Name (For Display)</label>
+				<input type="text" id="seller-name-input" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white mt-1 focus:outline-none focus:border-emerald-500" placeholder="Enter your name">
+            </div>
+				<div class="flex gap-2">
+					<div class="flex-1">
+						<label class="text-xs text-slate-400 font-bold uppercase">Price</label>
+						<input type="number" id="list-price-input" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white mt-1 font-mono focus:outline-none focus:border-emerald-500" placeholder="Amount">
                 </div>
-            </div>
-        </div>
-    </div>
+						<div class="flex-1">
+							<label class="text-xs text-slate-400 font-bold uppercase">Currency</label>
+							<select id="list-currency-input" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white mt-1 text-xs focus:outline-none focus:border-emerald-500">
+                        <option value="dollars">Dollars ($)</option>
+                        <option value="extraction_tokens">Ext. Tokens</option>
+                        <option value="reward_tokens">Reward Tokens</option>
+                        <option value="loot_egg_tickets">Loot Tickets</option>
+                    </select>
+						</div>
+					</div>
+					<div class="flex gap-2 mt-4">
+						<button onclick="gameState.confirmList()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-bold text-white transition-colors shadow-lg">LIST ITEM</button>
+						<button onclick="gameState.closeModal('list-modal')" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-white transition-colors">CANCEL</button>
+					</div>
+				</div>
+			</div>
 
-    <!-- MODALS -->
-    <div id="journal-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
-        <div class="modal-backdrop absolute inset-0"></div>
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
-            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-                <h2 class="text-2xl font-bold flex items-center gap-2"><span class="text-indigo-400">📖</span> Mutation Journal</h2>
-                <button id="close-journal" class="text-slate-500 hover:text-white text-2xl">&times;</button>
-            </div>
-            <div class="p-6 overflow-y-auto">
-                <div id="journal-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            </div>
-        </div>
-    </div>
 
-    <div id="detail-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
-        <div class="modal-backdrop absolute inset-0"></div>
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl flex flex-col">
-            <div id="detail-content" class="p-8 flex flex-col items-center text-center"></div>
-            <button id="close-detail" class="absolute top-4 right-4 text-slate-500 hover:text-white text-2xl">&times;</button>
-        </div>
-    </div>
+			<div id="cryo-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+				<div class="modal-backdrop absolute inset-0"></div>
+				<div
+					class="modal-inner bg-slate-900 border border-cyan-700 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden relative shadow-2xl flex flex-col">
+					<div class="p-6 border-b border-cyan-800 flex justify-between items-center bg-cyan-950/20">
+						<h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400"><span>🌵</span> Cryogenic
+							Chamber</h2>
+						<button id="close-cryo" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+					</div>
+					<div class="p-6 overflow-y-auto">
+						<div id="cryo-list" class="space-y-4"></div>
+					</div>
+				</div>
+			</div>
 
-    <div id="cryo-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
-        <div class="modal-backdrop absolute inset-0"></div>
-        <div class="bg-slate-900 border border-cyan-700 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden relative shadow-2xl flex flex-col">
-            <div class="p-6 border-b border-cyan-800 flex justify-between items-center bg-cyan-950/20">
-                <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400"><span>🌵</span> Cryogenic Chamber</h2>
-                <button id="close-cryo" class="text-slate-500 hover:text-white text-2xl">&times;</button>
-            </div>
-            <div class="p-6 overflow-y-auto">
-                <div id="cryo-list" class="space-y-4"></div>
-            </div>
-        </div>
-    </div>
 
-    <div id="market-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
-        <div class="modal-backdrop absolute inset-0"></div>
-        <div class="bg-slate-900 border border-amber-700/50 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
-            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-amber-950/10">
-                <div class="flex gap-4">
-                    <button onclick="gameState.switchMarketTab('buy')" id="tab-buy" class="text-2xl font-bold text-white opacity-100">🏪 Market</button>
-                    <button onclick="gameState.switchMarketTab('sell')" id="tab-sell" class="text-2xl font-bold text-white opacity-40">🏷️ Sales</button>
-                </div>
-                <button id="close-market" class="text-slate-500 hover:text-white text-2xl">&times;</button>
-            </div>
-            <div id="market-buy-view" class="p-6 overflow-y-auto flex-1">
-                <div id="market-stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            </div>
-            <div id="market-sell-view" class="p-6 overflow-y-auto flex-1 hidden"></div>
-        </div>
-    </div>
+			<div id="market-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+				<div class="modal-backdrop absolute inset-0"></div>
+				<div
+					class="modal-inner bg-slate-900 border border-amber-700/50 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col">
+					<div
+						class="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-amber-950/10 gap-4">
+						<div class="flex gap-4">
+							<button onclick="gameState.switchMarketTab('buy')" id="tab-buy" class="text-2xl font-bold text-white opacity-100 transition-opacity">🛒 Public Market</button>
+							<button onclick="gameState.switchMarketTab('sell')" id="tab-sell" class="text-2xl font-bold text-white opacity-40 transition-opacity">🏷️ My Listings <span id="listing-count-badge" class="text-xs bg-slate-800 px-2 py-1 rounded-full text-slate-400 align-middle ml-2">0/3</span></button>
+						</div>
+						<div class="flex items-center gap-3 w-full sm:w-auto">
+							<input type="text" id="market-search" placeholder="Search items..." class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-amber-500 w-full sm:w-48" onkeyup="gameState.filterMarket(this.value)">
+							<button onclick="gameState.closeModal('market-modal')" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+						</div>
+					</div>
+					<div id="market-buy-view" class="p-6 overflow-y-auto flex-1">
+						<div id="market-stock-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+					</div>
+					<div id="market-sell-view" class="p-6 overflow-y-auto flex-1 hidden"></div>
+				</div>
+			</div>
 
-    <div id="toast-container" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <script type="module">
+			<div id="toast-container"
+				class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex flex-col gap-2 w-full max-w-sm px-4">
+			</div>
+
+
+			<script type="module">
+				import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+
+        // Initialize Supabase Client
+        const supabaseUrl = 'https://gmgpnjwaeorsquigvugm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtZ3BuandhZW9yc3F1aWd2dWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNTkxODAsImV4cCI6MjA5NDczNTE4MH0.lxagXH3npcXNTlK0k3lOGJ5pdpES0uT8CzfYxxkM0Jg';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+
         const SPECIES = [
             { name: "Snake", emoji: "🐍", baseValue: 15, weight: 100 },
             { name: "Parrot", emoji: "🦜", baseValue: 20, weight: 100 },
@@ -338,8 +722,12 @@
             { name: "Leviathan", emoji: "🌊🐉", baseValue: 65000, weight: 0.01 },
             { name: "Celestial Stag", emoji: "🦌✨", baseValue: 150000, weight: 0.005 },
             { name: "Void Mantis", emoji: "🦗🌌", baseValue: 400000, weight: 0.001 },
-            { name: "Reality Glitch", emoji: "👾🚫", baseValue: 1000000, weight: 0.0001 }
+            { name: "Dinosaur", emoji: "🦖", baseValue: 750000, weight: 0.0005 },
+            { name: "Reality Glitch", emoji: "👾🚫", baseValue: 1000000, weight: 0.0001 },
+            { name: "Angel", emoji: "👼", baseValue: 5000000, weight: 0.00005 },
+            { name: "Dog", emoji: "🐕", baseValue: 10000000, weight: 0.00001 }
         ];
+
 
         const MUTATIONS = [
             { id: "normal", name: "Regular", chance: 1, valueMult: 1, rarity: "Normal", reward: 0 },
@@ -370,7 +758,10 @@
             { id: "pure_energy", name: "Manifest Energy", chance: 1/1000000000, valueMult: 500000000, rarity: "Omni", reward: 2500000000 }
         ];
 
+
         const RARITY_LEVELS = { "Normal": 0, "Common": 1, "Uncommon": 2, "Rare": 3, "Epic": 4, "Mythical": 5, "Godly": 6, "Ascendant": 7, "Omni": 8 };
+        const RARITY_INCOME = { "Normal": 1, "Common": 3, "Uncommon": 5, "Rare": 10, "Epic": 50, "Mythical": 75, "Godly": 1000, "Ascendant": 10000, "Omni": 100000 };
+
 
         const EGG_TIERS = [
             { id: 0, name: "Standard", cost: 100, luck: 1, emoji: "🥚" },
@@ -379,16 +770,34 @@
             { id: 3, name: "Omega", cost: 30000, luck: 60, emoji: "🌌" }
         ];
 
+
         const gameState = {
             money: 250,
             animals: [],
+            extractedMutations: [],
+            potions: [], // List of currently owned potions
             discoveredMutations: ["normal"],
-            maxPop: 24,
             selectedEggTier: 0,
+            pendingHatches: 0,
+            
+            // Spin timers & drop rewards
+            freeSpins: 0,
+            spinTimer: 3600,
+            billionEggCooldown: 0, // In seconds (25 minutes = 1500s)
+            extractionTokens: 0,
+            lootEggTickets: 0,
+            lastEasterEggTime: 0, // Last key combo success timestamp
+            
+            activeBoosts: {
+                luck: { mult: 1, timer: 0 },
+                profit: { mult: 1, timer: 0 }
+            },
+            isSpinning: false,
             upgrades: {
                 luck: { level: 1, baseCost: 300 },
                 profit: { level: 1, baseCost: 500 },
-                maint: { level: 1, baseCost: 200 }
+                maint: { level: 1, baseCost: 200 },
+                pop: { level: 1, baseCost: 10000 }
             },
             maintenance: {
                 scoop: { cooldown: 0, max: 10, pay: 50 },
@@ -396,51 +805,174 @@
                 pet: { cooldown: 0, max: 3, pay: 15 }
             },
             selectedForLab: [],
-            marketStock: [],
-            lastMarketRefresh: 0,
-            activeListing: null,
-            currentOffer: null,
-            nextOfferTime: 0,
+            
+            // Multiplayer Market State
+            playerId: '',
+            playerName: '',
+            activeListings: [],
             marketTab: 'buy',
+            tickCount: 0,
+            itemToEdit: null, // Temporary store for market listing
+            currentlyViewingAnimal: null, // For real-time updates
+
 
             init() {
+                window.gameState = this; // Attach immediately so inline HTML handlers always work!
                 this.loadData();
                 this.updateUI();
                 this.setupListeners();
                 this.updateJournal();
+                this.setupKeyboardEgg();
                 setInterval(() => this.tick(), 1000);
             },
+
+
+            // Modal animation helpers
+            openModal(id) {
+                const modal = document.getElementById(id);
+                modal.classList.remove('hidden');
+                const content = modal.querySelector('.modal-inner');
+                if (content) {
+                    content.classList.remove('modal-slide-out');
+                    content.classList.add('modal-slide-in');
+                }
+            },
+
+
+            closeModal(id) {
+                const modal = document.getElementById(id);
+                const content = modal.querySelector('.modal-inner');
+                if (content) {
+                    content.classList.remove('modal-slide-in');
+                    content.classList.add('modal-slide-out');
+                    setTimeout(() => modal.classList.add('hidden'), 350);
+                } else {
+                    modal.classList.add('hidden');
+                }
+            },
+
 
             saveData() {
                 const save = {
                     money: this.money,
                     animals: this.animals,
+                    extractedMutations: this.extractedMutations,
+                    potions: this.potions,
                     discoveredMutations: this.discoveredMutations,
                     upgrades: this.upgrades,
-                    lastMarketRefresh: this.lastMarketRefresh,
-                    marketStock: this.marketStock,
-                    activeListing: this.activeListing,
-                    nextOfferTime: this.nextOfferTime
+                    playerId: this.playerId,
+                    playerName: this.playerName,
+                    activeListings: this.activeListings,
+                    freeSpins: this.freeSpins,
+                    spinTimer: this.spinTimer,
+                    billionEggCooldown: this.billionEggCooldown,
+                    extractionTokens: this.extractionTokens,
+                    lootEggTickets: this.lootEggTickets,
+                    activeBoosts: this.activeBoosts,
+                    lastEasterEggTime: this.lastEasterEggTime
                 };
                 localStorage.setItem('zoo_mutation_save', JSON.stringify(save));
             },
+
 
             loadData() {
                 const saved = localStorage.getItem('zoo_mutation_save');
                 if (saved) {
                     const data = JSON.parse(saved);
                     Object.assign(this, data);
+                    
+                    // Migrate from old saves
+                    if (!this.upgrades.pop) this.upgrades.pop = { level: 1, baseCost: 10000 };
+                    if (!this.extractedMutations) this.extractedMutations = [];
+                    if (!this.potions) this.potions = [];
+                    if (this.freeSpins === undefined) this.freeSpins = 0;
+                    if (this.spinTimer === undefined) this.spinTimer = 3600;
+                    if (this.billionEggCooldown === undefined) this.billionEggCooldown = 0;
+                    if (this.extractionTokens === undefined) this.extractionTokens = 0;
+                    if (this.lootEggTickets === undefined) this.lootEggTickets = 0;
+                    if (this.lastEasterEggTime === undefined) this.lastEasterEggTime = 0;
+                    if (!this.activeBoosts) this.activeBoosts = { luck: { mult: 1, timer: 0 }, profit: { mult: 1, timer: 0 } };
+                    
+                    this.pendingHatches = 0; // reset pending on load
+                    this.isSpinning = false;
+                    
+                    if (!this.activeListings) this.activeListings = [];
+                    if (!this.playerId) this.playerId = 'player_' + crypto.randomUUID().substr(0,8);
+
+
+                    // --- BUG FIX: Force 100% Unique IDs everywhere ---
+                    const seenIds = new Set();
+                    this.animals.forEach(a => {
+                        if (!a.id || seenIds.has(a.id)) a.id = crypto.randomUUID();
+                        seenIds.add(a.id);
+                    });
+                    this.extractedMutations.forEach(m => {
+                        if (!m.id || seenIds.has(m.id)) m.id = crypto.randomUUID();
+                        seenIds.add(m.id);
+                    });
+                    
                     this.updateJournal();
+                } else {
+                    this.activeListings = [];
+                    this.extractedMutations = [];
+                    this.potions = [];
+                    this.playerId = 'player_' + crypto.randomUUID().substr(0,8);
                 }
             },
 
+
             tick() {
+                this.tickCount++;
                 const now = Date.now();
                 let totalIncome = 0;
 
+
+                // Process Boost Timers
+                let boostsChanged = false;
+                ['luck', 'profit'].forEach(b => {
+                    if (this.activeBoosts[b].timer > 0) {
+                        this.activeBoosts[b].timer--;
+                        if (this.activeBoosts[b].timer <= 0) {
+                            this.activeBoosts[b].mult = 1; // Reset
+                            this.showToast(`${b.toUpperCase()} Boost expired!`, "info");
+                        }
+                        boostsChanged = true;
+                    }
+                });
+
+
+                // Spin Timer Logic
+                if (this.spinTimer > 0) {
+                    this.spinTimer--;
+                    if (this.spinTimer <= 0) {
+                        this.freeSpins++;
+                        this.spinTimer = 3600;
+                        this.showToast("Hourly Reward available!", "special");
+                        document.getElementById('wheel-notif').classList.remove('hidden');
+                    }
+                    const min = Math.floor(this.spinTimer / 60);
+                    const sec = this.spinTimer % 60;
+                    document.getElementById('wheel-timer').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+                }
+
+
+                // Billion Egg Cooldown Tick
+                if (this.billionEggCooldown > 0) {
+                    this.billionEggCooldown--;
+                    const bMin = Math.floor(this.billionEggCooldown / 60);
+                    const bSec = this.billionEggCooldown % 60;
+                    document.getElementById('billion-egg-cooldown-text').innerText = `Cooldown: ${bMin}:${bSec.toString().padStart(2, '0')}`;
+                } else {
+                    document.getElementById('billion-egg-cooldown-text').innerText = "Ready to Open";
+                }
+
+
+                const profitMult = this.activeBoosts.profit.mult || 1;
+
+
                 this.animals.forEach(a => {
-                    const rank = RARITY_LEVELS[a.mutation.rarity] || 0;
-                    totalIncome += (1 + rank);
+                    const baseIncome = RARITY_INCOME[a.mutation.rarity] || 1;
+                    totalIncome += baseIncome * profitMult;
                     if (!a.level) a.level = 0;
                     if (a.level < 15) {
                         a.exp = (a.exp || 0) + 1;
@@ -452,7 +984,9 @@
                     if (a.isInCryo && now >= a.cryoEndTime) this.finishCryo(a);
                 });
 
+
                 this.money += totalIncome;
+
 
                 Object.keys(this.maintenance).forEach(key => {
                     if (this.maintenance[key].cooldown > 0) {
@@ -461,17 +995,60 @@
                     }
                 });
 
-                if (now - this.lastMarketRefresh > 3600000) this.refreshMarket();
 
-                if (this.activeListing && !this.currentOffer && now >= this.nextOfferTime) {
-                    this.generateOffer();
+                // Fermentation Check
+                this.extractedMutations.forEach(m => {
+                    if (!m.isFermented && m.extractedAt && (now - m.extractedAt >= 60 * 60 * 1000)) {
+                        m.isFermented = true;
+                        this.showToast(`${m.name} Orb has fermented!`, "special");
+                    }
+                });
+
+
+                // Periodically check if your listings were sold by querying the DB
+                if (this.tickCount % 5 === 0 && this.activeListings.length > 0) {
+                    this.checkSoldListings();
                 }
+
+
+                // --- REAL TIME UI UPDATES ---
+                if (!document.getElementById('detail-modal').classList.contains('hidden') && this.currentlyViewingAnimal) {
+                    const a = this.currentlyViewingAnimal;
+                    const timeNeeded = 120 + ((a.level || 0) * 30);
+                    const progress = (((a.exp || 0) / timeNeeded) * 100).toFixed(1);
+                    
+                    const pEl = document.getElementById('detail-progress-text');
+                    if(pEl) pEl.innerText = `${progress}%`;
+                    
+                    const lEl = document.getElementById('detail-level-text');
+                    if(lEl) lEl.innerText = `${a.level || 0}/15`;
+                }
+
+
+                if (!document.getElementById('cryo-modal').classList.contains('hidden')) {
+                    this.animals.forEach(a => {
+                        if (a.isInCryo) {
+                            const el = document.getElementById(`cryo-timer-${a.id}`);
+                            if (el) {
+                                const timeLeft = Math.max(0, Math.ceil((a.cryoEndTime - Date.now()) / 1000));
+                                el.innerText = `${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`;
+                            }
+                        }
+                    });
+                }
+
 
                 document.getElementById('money-display').innerText = `$${Math.floor(this.money).toLocaleString()}`;
                 document.getElementById('income-display').innerText = `+$${totalIncome}/s`;
-                document.getElementById('pop-display').innerText = `${this.animals.length}/${this.maxPop}`;
+                document.getElementById('pop-display').innerText = `${this.animals.length}/${this.getMaxPop()}`;
                 this.saveData();
             },
+
+
+            getMaxPop() {
+                return 24 + ((this.upgrades.pop?.level || 1) - 1) * 3;
+            },
+
 
             updateUI() {
                 const grid = document.getElementById('inventory-grid');
@@ -479,28 +1056,121 @@
                 this.animals.forEach(a => grid.appendChild(this.createAnimalCard(a)));
                 document.getElementById('empty-state').style.display = this.animals.length ? 'none' : 'flex';
 
-                ['luck', 'profit', 'maint'].forEach(t => {
+
+                ['luck', 'profit', 'maint', 'pop'].forEach(t => {
                     const upg = this.upgrades[t];
                     document.getElementById(`${t}-level`).innerText = `Lv. ${upg.level}${upg.level >= 100 ? ' (MAX)' : ''}`;
                     document.getElementById(`${t}-cost`).innerText = upg.level >= 100 ? '---' : `$${this.getUpgradeCost(t).toLocaleString()}`;
                 });
 
+
+                // UPDATE LAB UI
                 const p1 = this.selectedForLab[0];
                 const p2 = this.selectedForLab[1];
-                document.getElementById('parent-1').querySelector('.emoji').innerText = p1?.emoji || '?';
-                document.getElementById('parent-1').querySelector('.mut-tag').innerText = p1?.mutation.name || '';
-                document.getElementById('parent-2').querySelector('.emoji').innerText = p2?.emoji || '?';
-                document.getElementById('parent-2').querySelector('.mut-tag').innerText = p2?.mutation.name || '';
                 
-                document.getElementById('lab-breed-btn').disabled = this.selectedForLab.length < 2;
-                document.getElementById('lab-transfer-btn').disabled = this.selectedForLab.length < 2 || this.selectedForLab[0].mutation.id === 'normal';
+                [0, 1].forEach(i => {
+                    const item = this.selectedForLab[i];
+                    const el = document.getElementById(`parent-${i+1}`);
+                    el.className = 'w-16 h-16 bg-slate-800 rounded-lg flex flex-col items-center justify-center border shadow-inner relative overflow-hidden cursor-pointer hover:border-indigo-500 transition-colors ' + 
+                                   (item && item.type === 'mutation' ? `border-${item.rarity.toLowerCase() === 'normal' ? 'slate-500' : 'indigo-500'} bg-indigo-900/30` : 'border-slate-700');
+                    
+                    if (item) {
+                        if (item.type === 'mutation') {
+                            el.querySelector('.emoji').innerHTML = `<span class="orb-glow rarity-${item.rarity.toLowerCase()} drop-shadow-md text-2xl">🔮</span>`;
+                            el.querySelector('.mut-tag').innerText = `P. lvl: ${item.purity || 0} ` + item.name;
+                        } else {
+                            el.querySelector('.emoji').innerText = item.emoji || '?';
+                            el.querySelector('.mut-tag').innerText = item.mutation.name || '';
+                        }
+                    } else {
+                        el.querySelector('.emoji').innerText = '?';
+                        el.querySelector('.mut-tag').innerText = '';
+                    }
+                });
+                
+                // Button logic
+                const canExtract = this.selectedForLab.length === 1 && !p1.type && p1.mutation.id !== 'normal';
+                document.getElementById('lab-extract-btn').disabled = !canExtract;
+                if (this.extractionTokens > 0) {
+                    document.getElementById('lab-extract-btn').innerText = `EXTRACT (Uses 1 Token) [${this.extractionTokens} Left]`;
+                    document.getElementById('lab-extract-btn').classList.replace('bg-purple-600', 'bg-pink-600');
+                    document.getElementById('lab-extract-btn').classList.replace('hover:bg-purple-500', 'hover:bg-pink-500');
+                } else {
+                    document.getElementById('lab-extract-btn').innerText = `EXTRACT ($1,000,000,000)`;
+                    document.getElementById('lab-extract-btn').classList.replace('bg-pink-600', 'bg-purple-600');
+                    document.getElementById('lab-extract-btn').classList.replace('hover:bg-pink-500', 'hover:bg-purple-500');
+                }
+
+
+                const canBreed = this.selectedForLab.length === 2 && !p1.type && !p2.type;
+                document.getElementById('lab-breed-btn').disabled = !canBreed;
+
+
+                let canTransfer = false;
+                if (this.selectedForLab.length === 2) {
+                    if (!p1.type && !p2.type) canTransfer = p1.mutation.id !== 'normal';
+                    else if ((!p1.type && p2.type === 'mutation') || (p1.type === 'mutation' && !p2.type)) canTransfer = true;
+                    else if (p1.type === 'mutation' && p2.type === 'mutation') {
+                        canTransfer = (p1.mutationId === p2.mutationId && (p1.purity || 0) === (p2.purity || 0) && (p1.purity || 0) < 5);
+                    }
+                }
+                document.getElementById('lab-transfer-btn').disabled = !canTransfer;
+
+
+                // Update market listing count visually
+                const activeCount = this.activeListings ? this.activeListings.length : 0;
+                document.getElementById('listing-count-badge').innerText = `${activeCount}/3`;
+
+
+                // Update Potion Bag Badge Count
+                const pCount = this.potions ? this.potions.length : 0;
+                document.getElementById('potions-badge').innerText = pCount;
+                if (pCount >= 100) {
+                    document.getElementById('potions-badge').classList.replace('bg-emerald-500', 'bg-red-500');
+                } else {
+                    document.getElementById('potions-badge').classList.replace('bg-red-500', 'bg-emerald-500');
+                }
+
+
+                // Boosts UI
+                const boostsContainer = document.getElementById('active-boosts-container');
+                const boostsList = document.getElementById('boosts-list');
+                boostsList.innerHTML = '';
+                let hasBoosts = false;
+                
+                ['luck', 'profit'].forEach(b => {
+                    if (this.activeBoosts[b].timer > 0) {
+                        hasBoosts = true;
+                        const min = Math.floor(this.activeBoosts[b].timer / 60);
+                        const sec = this.activeBoosts[b].timer % 60;
+                        const color = b === 'luck' ? 'indigo' : 'emerald';
+                        boostsList.innerHTML += `
+                            <div class="flex justify-between items-center bg-slate-900 p-2 rounded-lg border border-${color}-500/30 shadow-inner">
+                                <span class="text-xs font-bold text-${color}-400 uppercase">${this.activeBoosts[b].mult}x ${b}</span>
+                                <span class="text-xs font-mono text-slate-300">${min}:${sec.toString().padStart(2, '0')}</span>
+                            </div>
+                        `;
+                    }
+                });
+                boostsContainer.style.display = hasBoosts ? 'block' : 'none';
+                
+                // Update wheel button
+                const spinBtn = document.getElementById('spin-btn');
+                if (spinBtn) {
+                    spinBtn.innerText = `OPEN REWARD (${this.freeSpins} Available)`;
+                    spinBtn.disabled = this.freeSpins <= 0 || this.isSpinning;
+                }
             },
+
 
             getUpgradeCost(type) {
                 const upg = this.upgrades[type];
-                const mult = type === 'luck' ? 2.5 : 2.0;
+                let mult = 2.0;
+                if (type === 'luck') mult = 2.5;
+                if (type === 'pop') mult = 2.5;
                 return Math.floor(upg.baseCost * Math.pow(mult, upg.level - 1));
             },
+
 
             upgrade(type) {
                 if (this.upgrades[type].level >= 100) return;
@@ -512,8 +1182,9 @@
                 } else { this.showToast("Not enough money!"); }
             },
 
+
             createAnimalCard(animal) {
-                const isSelected = this.selectedForLab.find(a => a.id === animal.id);
+                const isSelected = this.selectedForLab.find(a => a && !a.type && a.id === animal.id);
                 const div = document.createElement('div');
                 div.className = `animal-card p-3 rounded-xl cursor-pointer ${isSelected ? 'ring-2 ring-indigo-500 bg-indigo-900/30' : ''} ${animal.isWarborn ? 'warborn-glint' : ''}`;
                 const val = this.calcVal(animal);
@@ -523,63 +1194,215 @@
                     <div class="flex justify-between items-start">
                         <span class="text-2xl">${animal.emoji}</span>
                         <div class="flex flex-col items-end">
-                            <span class="text-[8px] font-bold uppercase ${rarityClass}">${animal.mutation.rarity}</span>
-                            <span class="text-[8px] bg-slate-700 px-1 rounded text-slate-300">Lv.${animal.level || 0}</span>
+                            <div class="flex items-center gap-1">
+                                ${animal.locked ? '<span class="text-[10px]" title="Locked">🔒</span>' : ''}
+                                ${animal.isFermented ? '<span class="text-[10px]" title="Fermented">🦠</span>' : ''}
+                                <span class="text-[8px] font-bold uppercase ${rarityClass}">P. lvl: ${animal.purity || 0} | ${animal.mutation.rarity}</span>
+                            </div>
+                            <span class="text-[8px] bg-slate-700 px-1 rounded text-slate-300 mt-1">Lv.${animal.level || 0}</span>
                         </div>
                     </div>
                     <h3 class="font-bold text-white text-[10px] truncate mt-1">${animal.mutation.name} ${animal.name}</h3>
                     <p class="text-emerald-400 font-mono text-[9px]">$${Math.floor(val).toLocaleString()}</p>
                     <div class="flex gap-1 mt-2">
-                        <button class="lab-btn flex-1 bg-indigo-500/20 text-indigo-400 text-[8px] font-bold py-1 rounded">Lab</button>
-                        <button class="sell-btn flex-1 bg-red-500/20 text-red-400 text-[8px] font-bold py-1 rounded">Sell</button>
+                        <button class="lab-btn flex-1 bg-indigo-500/20 text-indigo-400 text-[8px] font-bold py-1 rounded hover:bg-indigo-500/40">Lab</button>
+                        <button class="sell-btn flex-1 ${animal.locked ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'} text-[8px] font-bold py-1 rounded transition-colors">Sell (NPC)</button>
                     </div>
                 `;
+                
                 div.onclick = () => this.showAnimalDetails(animal);
-                div.querySelector('.lab-btn').onclick = (e) => { e.stopPropagation(); this.toggleLab(animal); };
-                div.querySelector('.sell-btn').onclick = (e) => { e.stopPropagation(); this.sellAnimalInstantly(animal.id); };
+                
+                // Right click to lock
+                div.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    animal.locked = !animal.locked;
+                    this.saveData();
+                    this.updateUI();
+                    this.showToast(animal.locked ? "Animal locked." : "Animal unlocked.", "info");
+                };
+
+
+                div.querySelector('.lab-btn').onclick = (e) => { e.stopPropagation(); this.toggleLabAnimal(animal); };
+                
+                div.querySelector('.sell-btn').onclick = (e) => { 
+                    e.stopPropagation(); 
+                    if (animal.locked) {
+                        this.showToast("This animal is locked!", "error");
+                        return;
+                    }
+                    this.sellAnimalInstantly(animal.id); 
+                };
+                
                 return div;
             },
+
 
             calcVal(a) {
                 let v = a.baseValue * a.mutation.valueMult;
                 if (a.isWarborn) v *= 1.5;
-                return v * (1 + (this.upgrades.profit.level - 1) * 0.12);
+                if (a.isFermented) v *= 1.25;
+                const purityMults = [1, 1.5, 2, 2.5, 3, 4];
+                v *= purityMults[a.purity || 0] || 1;
+                
+                const profitMult = this.activeBoosts.profit.mult || 1;
+                return v * (1 + (this.upgrades.profit.level - 1) * 0.12) * profitMult;
             },
 
+
             showAnimalDetails(animal) {
-                const modal = document.getElementById('detail-modal');
+                this.currentlyViewingAnimal = animal;
                 const content = document.getElementById('detail-content');
                 const val = this.calcVal(animal);
-                const rank = RARITY_LEVELS[animal.mutation.rarity] || 0;
+                const baseIncome = RARITY_INCOME[animal.mutation.rarity] || 1;
                 const timeNeeded = 120 + ((animal.level || 0) * 30);
                 const progress = (((animal.exp || 0) / timeNeeded) * 100).toFixed(1);
+
 
                 content.innerHTML = `
                     <div class="text-6xl mb-4 floating">${animal.emoji}</div>
                     <h2 class="text-2xl font-bold text-white">${animal.mutation.name} ${animal.name}</h2>
-                    <p class="rarity-${animal.mutation.rarity.toLowerCase()} font-bold uppercase text-sm mb-4">${animal.mutation.rarity}</p>
+                    <p class="rarity-${animal.mutation.rarity.toLowerCase()} font-bold uppercase text-sm mb-4">${animal.isFermented ? '🦠 Fermented | ' : ''}P. lvl: ${animal.purity || 0} | ${animal.mutation.rarity}</p>
                     <div class="grid grid-cols-2 gap-4 w-full bg-slate-800/50 p-4 rounded-2xl mb-4 text-left">
-                        <div><p class="text-[10px] text-slate-500 font-bold">Income</p><p class="text-lg text-emerald-400">+$${1 + rank}/s</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Income</p><p class="text-lg text-emerald-400">+$${(baseIncome * (this.activeBoosts.profit.mult || 1)).toLocaleString()}/s</p></div>
                         <div><p class="text-[10px] text-slate-500 font-bold">Value</p><p class="text-lg text-emerald-400">$${Math.floor(val).toLocaleString()}</p></div>
-                        <div><p class="text-[10px] text-slate-500 font-bold">Level</p><p class="text-lg text-white">${animal.level || 0}/15</p></div>
-                        <div><p class="text-[10px] text-slate-500 font-bold">Next</p><p class="text-lg text-indigo-400">${progress}%</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Level</p><p class="text-lg text-white" id="detail-level-text">${animal.level || 0}/15</p></div>
+                        <div><p class="text-[10px] text-slate-500 font-bold">Next</p><p class="text-lg text-indigo-400" id="detail-progress-text">${progress}%</p></div>
                         <div class="col-span-2"><p class="text-[10px] text-slate-500 font-bold">Acquired</p><p class="text-xs text-slate-400">${new Date(animal.acquiredAt || Date.now()).toLocaleString()}</p></div>
                     </div>
-                    <button onclick="gameState.listOnMarket('${animal.id}')" class="w-full py-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-xs shadow-lg transition-all">LIST ON MARKET</button>
+                    <button onclick="gameState.listOnMarket('${animal.id}', 'animal')" class="w-full py-4 bg-amber-600 hover:bg-amber-500 rounded-xl font-bold text-xs shadow-lg transition-all">LIST ON GLOBAL MARKET</button>
                 `;
-                modal.classList.remove('hidden');
+                this.openModal('detail-modal');
             },
 
-            // --- LAB LOGIC ---
-            toggleLab(animal) {
-                const idx = this.selectedForLab.findIndex(a => a.id === animal.id);
+
+            // --- LAB & EXTRACT LOGIC ---
+            toggleLabAnimal(animal) {
+                const idx = this.selectedForLab.findIndex(a => a && !a.type && a.id === animal.id);
                 if (idx > -1) this.selectedForLab.splice(idx, 1);
                 else if (this.selectedForLab.length < 2) this.selectedForLab.push(animal);
                 this.updateUI();
             },
 
+
+            handleSlotClick(index) {
+                if (this.selectedForLab[index]) {
+                    // Remove from lab
+                    this.selectedForLab.splice(index, 1);
+                    this.updateUI();
+                } else {
+                    // Empty slot clicked -> Open Mutation Inventory
+                    this.openLabInventory();
+                }
+            },
+
+
+            doExtract() {
+                if (this.selectedForLab.length !== 1 || this.selectedForLab[0].type === 'mutation') return;
+                const animal = this.selectedForLab[0];
+                if (animal.mutation.id === 'normal') return;
+                
+                let cost = 1000000000;
+                let usedToken = false;
+                if (this.extractionTokens > 0) {
+                    usedToken = true;
+                    cost = 0;
+                }
+                
+                if (!usedToken && this.money < cost) {
+                    this.showToast("Need $1,000,000,000 to extract!", "error");
+                    return;
+                }
+                
+                if (usedToken) {
+                    this.extractionTokens--;
+                } else {
+                    this.money -= cost;
+                }
+
+
+                const mutToExtract = { 
+                    type: 'mutation',
+                    id: crypto.randomUUID(),
+                    mutationId: animal.mutation.id,
+                    name: animal.mutation.name,
+                    rarity: animal.mutation.rarity,
+                    valueMult: animal.mutation.valueMult,
+                    extractedAt: Date.now(),
+                    isFermented: animal.isFermented || false,
+                    purity: animal.purity || 0
+                };
+                
+                this.extractedMutations.push(mutToExtract);
+                
+                // Make animal normal
+                const normalMut = MUTATIONS.find(m => m.id === 'normal');
+                animal.mutation = { ...normalMut };
+                animal.isFermented = false;
+                animal.purity = 0;
+                
+                this.selectedForLab = [];
+                this.showToast(`${mutToExtract.name} mutation extracted!`, "success");
+                this.updateUI();
+            },
+
+
+            openLabInventory() {
+                const list = document.getElementById('lab-inventory-list');
+                list.innerHTML = '';
+
+
+                if (this.extractedMutations.length === 0) {
+                    list.innerHTML = `<div class="col-span-full text-slate-500 italic p-10 text-center">No extracted mutations found.<br>Use the Extract button in the Gene Lab.</div>`;
+                }
+
+
+                this.extractedMutations.forEach(mut => {
+                    const rarityClass = `rarity-${mut.rarity.toLowerCase()}`;
+                    const isSelected = this.selectedForLab.find(m => m && m.type === 'mutation' && m.id === mut.id);
+
+
+                    list.innerHTML += `
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col justify-between ${isSelected ? 'ring-2 ring-indigo-500' : ''}">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-4xl orb-glow drop-shadow-lg ${rarityClass}">🔮</span>
+                                <div>
+                                    <p class="font-bold text-white text-sm">${mut.name} Orb</p>
+                                    <div class="flex gap-1 items-center">
+                                        ${mut.isFermented ? '<span class="text-[10px]" title="Fermented">🦠</span>' : ''}
+                                        <p class="text-[10px] font-bold uppercase ${rarityClass}">P. lvl: ${mut.purity || 0} | ${mut.rarity}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="gameState.toggleMutationLab('${mut.id}')" class="flex-1 py-2 bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 rounded-lg text-[10px] font-bold transition-colors">
+                                    ${isSelected ? 'Remove' : 'Use in Lab'}
+                                </button>
+                                <button onclick="gameState.listOnMarket('${mut.id}', 'mutation')" class="flex-1 py-2 bg-amber-600/30 text-amber-300 hover:bg-amber-600/50 rounded-lg text-[10px] font-bold transition-colors border border-amber-500/20">Sell</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+
+                this.openModal('lab-inventory-modal');
+            },
+
+
+            toggleMutationLab(id) {
+                const idx = this.selectedForLab.findIndex(m => m && m.type === 'mutation' && m.id === id);
+                if (idx > -1) {
+                    this.selectedForLab.splice(idx, 1);
+                } else if (this.selectedForLab.length < 2) {
+                    const mut = this.extractedMutations.find(m => m.id === id);
+                    this.selectedForLab.push(mut);
+                }
+                this.updateUI();
+                this.openLabInventory(); // Refresh view for selection highlight
+            },
+
+
             doBreed() {
-                if (this.selectedForLab.length < 2) return;
+                if (this.selectedForLab.length !== 2 || this.selectedForLab[0].type || this.selectedForLab[1].type) return;
                 if (this.money < 500) { this.showToast("Need $500!"); return; }
                 const luckBonus = 2 + (RARITY_LEVELS[this.selectedForLab[0].mutation.rarity] * 5) + (RARITY_LEVELS[this.selectedForLab[1].mutation.rarity] * 5);
                 this.money -= 500;
@@ -587,192 +1410,1130 @@
                 this.hatchEgg(luckBonus);
             },
 
+
             doTransfer() {
-                if (this.selectedForLab.length < 2) return;
-                const source = this.selectedForLab[0];
-                const target = this.selectedForLab[1];
-                if (source.mutation.id === 'normal') return;
-                if (this.money < 2500) { this.showToast("Need $2,500!"); return; }
-                this.money -= 2500;
-                const targetIdx = this.animals.findIndex(a => a.id === target.id);
-                this.animals[targetIdx].mutation = { ...source.mutation };
-                this.animals.splice(this.animals.findIndex(a => a.id === source.id), 1);
-                this.selectedForLab = [];
-                this.showToast("Gene Transfer Successful!", "success");
-                this.updateUI();
-            },
+                if (this.selectedForLab.length !== 2) return;
+                
+                const item1 = this.selectedForLab[0];
+                const item2 = this.selectedForLab[1];
+                
+                // Identify the elements in play
+                let animalTarget, sourceObj;
+                
+                if (item1.type !== 'mutation' && item2.type !== 'mutation') {
+                    // Two animals: slot 1 is sacrificed, slot 2 receives it
+                    sourceObj = item1;
+                    animalTarget = item2;
+                    
+                    if (sourceObj.mutation.id === 'normal') return;
+                    if (this.money < 2500) { this.showToast("Need $2,500!"); return; }
+                    this.money -= 2500;
+                    
+                    const targetIdx = this.animals.findIndex(a => a.id === animalTarget.id);
+                    this.animals[targetIdx].mutation = { ...sourceObj.mutation };
+                    this.animals[targetIdx].isFermented = sourceObj.isFermented || false;
+                    this.animals[targetIdx].purity = sourceObj.purity || 0;
+                    
+                    // Sacrifice source
+                    this.animals.splice(this.animals.findIndex(a => a.id === sourceObj.id), 1);
+                    
+                    this.selectedForLab = [];
+                    this.showToast("Gene Transfer Successful!", "success");
+                    this.updateUI();
 
-            // --- CRYO LOGIC ---
-            openCryo() {
-                const modal = document.getElementById('cryo-modal');
-                const list = document.getElementById('cryo-list');
-                list.innerHTML = '';
-                this.animals.forEach(animal => {
-                    if (animal.isInCryo) {
-                        const timeLeft = Math.max(0, Math.ceil((animal.cryoEndTime - Date.now()) / 1000));
-                        list.innerHTML += `<div class="p-4 bg-slate-800 rounded-xl border border-cyan-500/50 flex justify-between items-center">
-                            <span class="text-2xl">${animal.emoji}</span>
-                            <div class="text-xl font-mono text-cyan-400">${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}</div>
-                        </div>`;
-                    } else {
-                        const survival = 25 + ((animal.level || 0) * 3);
-                        list.innerHTML += `<div class="p-4 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
-                            <div class="flex items-center gap-3"><span class="text-2xl">${animal.emoji}</span><p class="font-bold text-xs">${animal.name} (${survival}%)</p></div>
-                            <button onclick="gameState.startCryo('${animal.id}')" class="px-4 py-2 bg-cyan-900 rounded-lg text-[10px] font-bold">START ($100K)</button>
-                        </div>`;
-                    }
-                });
-                modal.classList.remove('hidden');
-            },
 
-            startCryo(id) {
-                const animal = this.animals.find(a => a.id == id);
-                if (this.money < 100000) { this.showToast("Need $100,000!"); return; }
-                this.money -= 100000;
-                animal.isInCryo = true;
-                animal.cryoEndTime = Date.now() + (15 * 60 * 1000);
-                this.openCryo();
-            },
+                } else if (item1.type === 'mutation' && item2.type === 'mutation') {
+                    // Combining Orbs
+                    if (item1.mutationId !== item2.mutationId || (item1.purity || 0) !== (item2.purity || 0)) return;
+                    if ((item1.purity || 0) >= 5) return;
+                    if (this.money < 2500) { this.showToast("Need $2,500!"); return; }
+                    this.money -= 2500;
 
-            finishCryo(animal) {
-                animal.isInCryo = false;
-                const survivalChance = 0.25 + ((animal.level || 0) * 0.03);
-                if (Math.random() <= survivalChance) {
-                    animal.isWarborn = true;
-                    this.showToast(`${animal.name} survived! It is now Warborn!`, "special");
+
+                    const newPurity = (item1.purity || 0) + 1;
+                    const newFermented = item1.isFermented || item2.isFermented;
+
+
+                    const newOrb = {
+                        type: 'mutation',
+                        id: crypto.randomUUID(),
+                        mutationId: item1.mutationId,
+                        name: item1.name,
+                        rarity: item1.rarity,
+                        valueMult: item1.valueMult,
+                        extractedAt: Date.now(), // Reset fermentation timer
+                        isFermented: newFermented,
+                        purity: newPurity
+                    };
+
+
+                    this.extractedMutations = this.extractedMutations.filter(m => m.id !== item1.id && m.id !== item2.id);
+                    this.extractedMutations.push(newOrb);
+
+
+                    this.selectedForLab = [];
+                    this.showToast(`Combined into P. lvl ${newPurity} Orb!`, "success");
+                    this.updateUI();
+
+
                 } else {
-                    this.animals.splice(this.animals.findIndex(a => a.id === animal.id), 1);
-                    this.showToast(`${animal.name} perished in the cold.`, "error");
+                    // One orb, one animal. Order doesn't matter here.
+                    const orb = item1.type === 'mutation' ? item1 : item2;
+                    const pet = item1.type !== 'mutation' ? item1 : item2;
+
+
+                    if (this.money < 2500) { this.showToast("Need $2,500!"); return; }
+                    this.money -= 2500;
+                    
+                    const baseMut = MUTATIONS.find(m => m.id === orb.mutationId);
+                    const targetIdx = this.animals.findIndex(a => a.id === pet.id);
+                    this.animals[targetIdx].mutation = { ...baseMut };
+                    this.animals[targetIdx].isFermented = orb.isFermented || false;
+                    this.animals[targetIdx].purity = orb.purity || 0;
+                    
+                    // remove mutation orb from inventory
+                    this.extractedMutations = this.extractedMutations.filter(m => m.id !== orb.id);
+                    
+                    this.selectedForLab = [];
+                    this.showToast(`Applied ${baseMut.name} to ${pet.name}!`, "success");
+                    this.updateUI();
                 }
+            },
+
+
+            // --- POTIONS BAG LOGIC ---
+            openPotions() {
+                const list = document.getElementById('potions-list');
+                list.innerHTML = '';
+                
+                if (this.potions.length === 0) {
+                    list.innerHTML = `<div class="col-span-full text-slate-500 italic p-10 text-center">Your potion bag is currently empty.</div>`;
+                }
+
+
+                this.potions.forEach(p => {
+                    const typeColor = p.type === 'luck' ? 'border-indigo-500/50 bg-indigo-950/20' : 'border-emerald-500/50 bg-emerald-950/20';
+                    const labelColor = p.type === 'luck' ? 'text-indigo-400' : 'text-emerald-400';
+                    const sellVal = p.mult === 2 ? 150000 : 50000;
+                    
+                    list.innerHTML += `
+                        <div class="p-4 rounded-xl border ${typeColor} flex flex-col justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <span class="text-3xl">🧪</span>
+                                <div>
+                                    <p class="font-bold text-white text-sm">${p.name}</p>
+                                    <p class="text-[10px] font-mono text-slate-400">${Math.floor(p.duration / 60)} Minutes Duration</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="gameState.usePotion('${p.id}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg transition-colors">USE BOOST</button>
+                                <button onclick="gameState.listOnMarket('${p.id}', 'potion')" class="flex-1 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg transition-colors border border-amber-500/50 shadow-lg">MARKET</button>
+                                <button onclick="gameState.sellPotion('${p.id}', ${sellVal})" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-mono text-xs rounded-lg transition-colors border border-slate-700">SELL ($${sellVal.toLocaleString()})</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('potions-count-text').innerText = `${this.potions.length} / 100`;
+                this.openModal('potions-modal');
+            },
+
+
+            addPotion(name, type, mult, duration) {
+                if (this.potions.length >= 100) {
+                    this.showToast("Your Potion Bag is full (100 Max)!", "error");
+                    return false;
+                }
+                const newPot = {
+                    id: crypto.randomUUID(),
+                    name: name,
+                    type: type, // 'luck' or 'profit'
+                    mult: mult,
+                    duration: duration // In seconds
+                };
+                this.potions.push(newPot);
                 this.updateUI();
+                return true;
             },
 
-            // --- MARKET LOGIC ---
-            refreshMarket() {
-                this.lastMarketRefresh = Date.now();
-                this.marketStock = [];
-                for(let i=0; i<6; i++) {
-                    const species = SPECIES[Math.floor(Math.random() * SPECIES.length)];
-                    this.marketStock.push({ id: Math.random(), ...species, mutation: MUTATIONS[0], price: species.baseValue * (3 + Math.random() * 3), stock: Math.ceil(Math.random() * 3) });
+
+            usePotion(id) {
+                const pIdx = this.potions.findIndex(p => p.id === id);
+                if (pIdx === -1) return;
+                
+                const p = this.potions.splice(pIdx, 1)[0];
+                
+                // Set/Extend active boost
+                this.activeBoosts[p.type] = {
+                    mult: p.mult,
+                    timer: (this.activeBoosts[p.type].timer || 0) + p.duration
+                };
+                
+                this.showToast(`${p.name} Activated!`, "success");
+                this.saveData();
+                this.updateUI();
+                this.openPotions(); // Refresh modal
+            },
+
+
+            sellPotion(id, amount) {
+                const pIdx = this.potions.findIndex(p => p.id === id);
+                if (pIdx === -1) return;
+                
+                this.potions.splice(pIdx, 1);
+                this.money += amount;
+                
+                this.showToast(`Sold Potion for $${amount.toLocaleString()}!`, "success");
+                this.saveData();
+                this.updateUI();
+                this.openPotions(); // Refresh modal
+            },
+
+
+            // --- KNOWLEDGE BOOK LOGIC ---
+            openKnowledge() {
+                this.openModal('knowledge-modal');
+                this.switchKnowledgeTab('mutations');
+            },
+
+
+            switchKnowledgeTab(tabName) {
+                document.querySelectorAll('.knowledge-tab').forEach(t => t.classList.remove('active', 'border-purple-500', 'text-purple-400', 'bg-purple-900/10'));
+                const activeTab = document.getElementById(`k-tab-${tabName}`);
+                activeTab.classList.add('active', 'border-purple-500', 'text-purple-400', 'bg-purple-900/10');
+
+
+                const content = document.getElementById('knowledge-content');
+                let html = '';
+
+
+                if (tabName === 'mutations') {
+                    const currentLuck = EGG_TIERS[this.selectedEggTier].luck * (1 + (this.upgrades.luck.level - 1) * 0.15);
+                    html += `
+                        <div class="mb-4 p-4 bg-slate-800 rounded-lg border border-slate-700 text-center">
+                            <p class="text-sm">Your Current Global Luck Multiplier: <span class="font-bold text-indigo-400">${currentLuck.toFixed(2)}x</span></p>
+                            <p class="text-[10px] text-slate-500 mt-1">(Based on Selected Egg & Upgrades)</p>
+                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-xs text-slate-400 uppercase">
+                                    <th class="py-2">Mutation</th>
+                                    <th class="py-2">Base Chance</th>
+                                    <th class="py-2">Your Chance</th>
+                                    <th class="py-2 text-right">Value Mult</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    MUTATIONS.forEach(m => {
+                        if(m.id === 'normal') return;
+                        const rarityClass = `rarity-${m.rarity.toLowerCase()}`;
+                        const baseChance = (m.chance * 100).toFixed(4);
+                        const yourChance = Math.min(100, (m.chance * currentLuck * 100)).toFixed(4);
+                        html += `
+                            <tr class="border-b border-slate-800/50">
+                                <td class="py-3 font-bold ${rarityClass}">${m.name}</td>
+                                <td class="py-3 font-mono text-xs">${baseChance}%</td>
+                                <td class="py-3 font-mono text-xs text-indigo-300">${yourChance}%</td>
+                                <td class="py-3 text-right font-mono text-emerald-400">${m.valueMult}x</td>
+                            </tr>
+                        `;
+                    });
+                    html += `</tbody></table>`;
+                } 
+                else if (tabName === 'animals') {
+                    const currentLuck = EGG_TIERS[this.selectedEggTier].luck * (1 + (this.upgrades.luck.level - 1) * 0.15);
+                    html += `
+                        <div class="mb-4 p-4 bg-slate-800 rounded-lg border border-slate-700 text-center">
+                            <p class="text-sm">Your Current Global Luck Multiplier: <span class="font-bold text-indigo-400">${currentLuck.toFixed(2)}x</span></p>
+                            <p class="text-[10px] text-slate-500 mt-1">(Luck vastly increases the weight of rare species!)</p>
+                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-xs text-slate-400 uppercase">
+                                    <th class="py-2">Species</th>
+                                    <th class="py-2">Your Hatch Chance</th>
+                                    <th class="py-2 text-right">Base Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    const speciesTable = this.getSpeciesTable();
+                    // Sort descending by base value just for neat viewing in the book
+                    const sortedTable = [...speciesTable].sort((a,b) => b.species.baseValue - a.species.baseValue);
+                    
+                    sortedTable.forEach(entry => {
+                        const s = entry.species;
+                        const chance = (entry.chance * 100).toFixed(6); // Keep high precision for rare stuff
+                        html += `
+                            <tr class="border-b border-slate-800/50">
+                                <td class="py-3 font-bold text-white"><span class="text-xl mr-2">${s.emoji}</span> ${s.name}</td>
+                                <td class="py-3 font-mono text-xs text-indigo-300">${chance}%</td>
+                                <td class="py-3 text-right font-mono text-emerald-400">$${s.baseValue.toLocaleString()}</td>
+                            </tr>
+                        `;
+                    });
+                    html += `</tbody></table>`;
                 }
+                else if (tabName === 'purity') {
+                    html += `
+                        <div class="space-y-6">
+                            <div class="p-6 bg-slate-800 rounded-2xl border border-slate-700">
+                                <h3 class="text-xl font-bold text-purple-400 mb-3 flex items-center gap-2"><span>🔮</span> Enhancing Purity</h3>
+                                <p class="mb-4">You can enhance the <strong>Purity Level (P. lvl)</strong> of a mutation orb by combining two <span class="text-white font-bold">identical Orbs</span> (same mutation and same purity level) in the Gene Lab.</p>
+                                <p class="text-slate-400 text-sm">Example: A [P. lvl 1] Neon Orb + [P. lvl 1] Neon Orb will combine to create a <span class="text-indigo-400 font-bold">[P. lvl 2] Neon Orb</span>.</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="font-bold text-slate-400">P. lvl 1</span>
+                                    <span class="text-emerald-400 font-mono font-bold">1.5x Value</span>
+                                </div>
+                                <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="font-bold text-indigo-400">P. lvl 2</span>
+                                    <span class="text-emerald-400 font-mono font-bold">2.0x Value</span>
+                                </div>
+                                <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="font-bold text-purple-400">P. lvl 3</span>
+                                    <span class="text-emerald-400 font-mono font-bold">2.5x Value</span>
+                                </div>
+                                <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 flex justify-between items-center">
+                                    <span class="font-bold text-pink-400">P. lvl 4</span>
+                                    <span class="text-emerald-400 font-mono font-bold">3.0x Value</span>
+                                </div>
+                                <div class="p-4 bg-slate-900 rounded-xl border border-amber-500/50 flex justify-between items-center sm:col-span-2">
+                                    <span class="font-bold text-amber-400">P. lvl 5 (MAX)</span>
+                                    <span class="text-emerald-400 font-mono font-bold text-lg">4.0x Value</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                else if (tabName === 'cryo') {
+                    html += `
+                        <div class="space-y-4">
+                            <div class="p-6 bg-slate-800 rounded-2xl border border-cyan-700/50">
+                                <h3 class="text-xl font-bold text-cyan-400 mb-3 flex items-center gap-2"><span>❄️</span> Cryogenic Freezing</h3>
+                                <p class="mb-4">Place an animal in the Cryogenic Chamber for <span class="text-white font-bold">15 real-time minutes</span>. It is a dangerous procedure, and your animal will have a chance to survive based on its level.</p>
+                                <ul class="list-disc list-inside space-y-2 text-slate-400 ml-2 mb-4">
+                                    <li>Base survival chance: <span class="text-white font-bold">25%</span></li>
+                                    <li>Bonus survival chance: <span class="text-white font-bold">+3% per Level</span></li>
+                                </ul>
+                                <p>If the animal survives the harsh freeze, it awakens with the legendary <span class="text-red-400 font-bold">Warborn</span> status, giving it a permanent <span class="text-emerald-400 font-bold font-mono">1.5x</span> value multiplier!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                else if (tabName === 'fermentation') {
+                    html += `
+                        <div class="space-y-4">
+                            <div class="p-6 bg-slate-800 rounded-2xl border border-green-700/50">
+                                <h3 class="text-xl font-bold text-green-400 mb-3 flex items-center gap-2"><span>🦠</span> Mutation Fermentation</h3>
+                                <p class="mb-4">Extracted Orbs in your Mutation Inventory (🎒) are highly reactive. If you leave an orb sitting in your inventory for <span class="text-white font-bold">60 real-time minutes</span>, it will naturally ferment.</p>
+                                <p class="mb-4">When a Fermented Orb is applied to an animal, it grants the <span class="text-green-400 font-bold">🦠 Fermented</span> status.</p>
+                                <p>This provides an additional stacking <span class="text-emerald-400 font-bold font-mono">1.25x</span> value multiplier to the animal!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                else if (tabName === 'rewards') {
+                    html += `
+                        <div class="space-y-6">
+                            <div class="p-6 bg-slate-800 rounded-2xl border border-pink-700/50">
+                                <h3 class="text-xl font-bold text-pink-400 mb-3 flex items-center gap-2"><span>🎡</span> Hourly Reward Wheel</h3>
+                                <ul class="space-y-2 text-slate-300">
+                                    <li><span class="font-bold text-emerald-400">25%</span> - +6 Zoo Slots</li>
+                                    <li><span class="font-bold text-emerald-400">20%</span> - Double Money</li>
+                                    <li><span class="font-bold text-emerald-400">20%</span> - 1.5x Luck Potion (10m)</li>
+                                    <li><span class="font-bold text-indigo-400">15%</span> - Extraction Token</li>
+                                    <li><span class="font-bold text-indigo-400">10%</span> - 2x Luck Potion (5m)</li>
+                                    <li><span class="font-bold text-purple-400">5%</span> - 1.5x Profit Potion (10m)</li>
+                                    <li><span class="font-bold text-purple-400">4%</span> - Leviathan</li>
+                                    <li><span class="font-bold text-pink-400 drop-shadow-[0_0_5px_#f472b6]">1%</span> - Loot Egg Ticket</li>
+                                </ul>
+                            </div>
+                            <div class="p-6 bg-slate-800 rounded-2xl border border-amber-500/40">
+                                <h3 class="text-xl font-bold text-amber-400 mb-3 flex items-center gap-2"><span>⭐</span> Loot Egg</h3>
+                                <p class="text-slate-400 mb-4 text-xs">Cost: $1 Billion or 1 Loot Egg Ticket. Cooldown: 25 Minutes. Unaffected by Luck.</p>
+                                <ul class="space-y-2 text-slate-300">
+                                    <li><span class="font-bold text-emerald-400">30%</span> - $1.5 Billion Cash</li>
+                                    <li><span class="font-bold text-emerald-400">25%</span> - 1.5x Luck Potion (10m)</li>
+                                    <li><span class="font-bold text-indigo-400">20%</span> - 2x Luck Potion (10m)</li>
+                                    <li><span class="font-bold text-purple-400">10%</span> - Cosmic Orb [P. lvl 1, Fermented]</li>
+                                    <li><span class="font-bold text-pink-400">7%</span> - Astral Orb [P. lvl 1]</li>
+                                    <li><span class="font-bold text-amber-400">5%</span> - Dinosaur</li>
+                                    <li><span class="font-bold text-red-400">2%</span> - Supernova Orb [P. lvl 2, Fermented]</li>
+                                    <li><span class="font-bold text-white drop-shadow-[0_0_5px_#fff]">1%</span> - Manifest Energy Orb [P. lvl 1, Fermented]</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+
+
+                content.innerHTML = html;
             },
 
-            switchMarketTab(tab) {
+
+            // --- MULTIPLAYER MARKET LOGIC ---
+            async switchMarketTab(tab) {
                 this.marketTab = tab;
                 document.getElementById('market-buy-view').classList.toggle('hidden', tab !== 'buy');
                 document.getElementById('market-sell-view').classList.toggle('hidden', tab !== 'sell');
                 document.getElementById('tab-buy').style.opacity = tab === 'buy' ? '1' : '0.4';
                 document.getElementById('tab-sell').style.opacity = tab === 'sell' ? '1' : '0.4';
-                tab === 'buy' ? this.renderMarketBuy() : this.renderMarketSell();
-            },
+                
+                const searchBar = document.getElementById('market-search');
+                if (searchBar) {
+                    searchBar.style.display = tab === 'buy' ? 'block' : 'none';
+                    if (tab === 'buy') searchBar.value = '';
+                }
 
-            renderMarketBuy() {
-                const grid = document.getElementById('market-stock-grid');
-                grid.innerHTML = '';
-                this.marketStock.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-800 p-4 rounded-xl border border-slate-700";
-                    div.innerHTML = `<div class="flex justify-between items-center mb-2"><span class="text-3xl">${item.emoji}</span><span class="text-[10px] text-slate-400">Stock: ${item.stock}</span></div>
-                        <p class="font-bold text-white text-xs">${item.name}</p><p class="text-emerald-400 font-bold mb-3">$${Math.floor(item.price).toLocaleString()}</p>
-                        <button onclick="gameState.buyFromMarket('${item.id}')" class="w-full py-2 bg-indigo-600 rounded-lg text-[10px] font-bold">PURCHASE</button>`;
-                    grid.appendChild(div);
-                });
-            },
 
-            buyFromMarket(id) {
-                const item = this.marketStock.find(i => i.id == id);
-                if (!item || item.stock <= 0 || this.money < item.price || this.animals.length >= this.maxPop) return;
-                this.money -= item.price; item.stock--;
-                this.animals.push({ id: Date.now() + Math.random(), ...item, mutation: MUTATIONS[0], level: 0, exp: 0, acquiredAt: Date.now() });
-                this.renderMarketBuy(); this.updateUI();
-            },
-
-            listOnMarket(id) {
-                if (this.activeListing) { this.showToast("Only one animal at a time!"); return; }
-                const idx = this.animals.findIndex(a => a.id == id);
-                this.activeListing = this.animals.splice(idx, 1)[0];
-                const rank = RARITY_LEVELS[this.activeListing.mutation.rarity] || 0;
-                this.nextOfferTime = Date.now() + (60000 * (1 + rank));
-                document.getElementById('detail-modal').classList.add('hidden');
-                this.updateUI();
-            },
-
-            generateOffer() {
-                const baseVal = this.calcVal(this.activeListing);
-                this.currentOffer = { price: baseVal * (0.9 + Math.random() * 0.4), originPrice: 0, negotiateCount: 0, isLocked: false };
-                document.getElementById('market-notif').classList.remove('hidden');
-                this.showToast("New Buyer Interest!", "special");
-                if (this.marketTab === 'sell') this.renderMarketSell();
-            },
-
-            renderMarketSell() {
-                const view = document.getElementById('market-sell-view');
-                if (!this.activeListing) { view.innerHTML = `<div class="text-slate-500 italic p-10 text-center">List an animal from your Habitats to start.</div>`; return; }
-                if (!this.currentOffer) {
-                    view.innerHTML = `<div class="p-10 text-center"><div class="text-6xl mb-4 floating">${this.activeListing.emoji}</div><p class="text-slate-400 animate-pulse">Waiting for buyers...</p><button onclick="gameState.cancelListing()" class="mt-4 text-red-400 underline text-xs">Cancel Listing</button></div>`;
+                if (tab === 'buy') {
+                    await this.loadMarketBuy();
                 } else {
-                    view.innerHTML = `<div class="p-6"><div class="chat-bubble text-slate-200 text-sm mb-4">I am looking to purchase your ${this.activeListing.name} for <span class="text-emerald-400 font-bold">$${Math.floor(this.currentOffer.price).toLocaleString()}</span>.</div>
-                        ${this.currentOffer.isLocked ? '<p class="text-red-400 text-[10px] mb-4">They won\'t go any higher.</p>' : ''}
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="gameState.negotiate(0.05)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+5%</button>
-                            <button onclick="gameState.negotiate(0.10)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+10%</button>
-                            <button onclick="gameState.negotiate(0.15)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+15%</button>
-                            <button onclick="gameState.negotiate(0.20)" ${this.currentOffer.isLocked || this.currentOffer.negotiateCount >= 3 ? 'disabled' : ''} class="p-2 bg-slate-800 rounded-lg text-xs disabled:opacity-30">+20%</button>
-                            <button onclick="gameState.acceptOffer()" class="p-3 bg-emerald-600 rounded-lg font-bold text-xs col-span-1">SOLD!</button>
-                            <button onclick="gameState.declineOffer()" class="p-3 bg-red-900 rounded-lg font-bold text-xs col-span-1">DECLINE</button>
-                        </div></div>`;
+                    this.renderMarketSell();
                 }
             },
 
-            negotiate(pct) {
-                this.currentOffer.negotiateCount++;
-                let success = false;
-                const roll = Math.random();
-                if (pct === 0.05 && roll < 0.8) success = true;
-                else if (pct === 0.10 && roll < 0.65) success = true;
-                else if (pct === 0.15 && roll < 0.4) success = true;
-                else if (pct === 0.20 && roll < 0.2) success = true;
 
-                if (success) { this.currentOffer.price *= (1 + pct); this.showToast("Success!"); }
-                else { this.currentOffer.isLocked = true; this.showToast("Declined."); }
+            filterMarket(query) {
+                if (!query) query = '';
+                query = query.toLowerCase();
+                const items = document.querySelectorAll('.market-item-card');
+                items.forEach(el => {
+                    const name = el.getAttribute('data-name');
+                    if (name && name.includes(query)) {
+                        el.style.display = 'flex';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
+            },
+
+
+            async loadMarketBuy() {
+                const grid = document.getElementById('market-stock-grid');
+                grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-500 font-bold">Loading global market...</div>';
+                
+                const { data, error } = await supabase
+                    .from('market_listings')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-red-500 font-bold">Failed to load market. Please try again.</div>';
+                    return;
+                }
+
+
+                grid.innerHTML = '';
+                
+                const otherListings = data.filter(item => item.seller_id !== this.playerId);
+
+
+                if (otherListings.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-500 italic">No items listed by other players.</div>';
+                    return;
+                }
+
+
+                otherListings.forEach(item => {
+                    const obj = item.animal_data;
+                    const category = obj.marketCategory || (obj.type === 'mutation' ? 'mutation' : 'animal');
+                    const currency = obj.marketCurrency || 'dollars';
+                    const isMutation = category === 'mutation';
+                    const isPotion = category === 'potion';
+                    
+                    const searchName = isPotion ? obj.name : (isMutation ? obj.name + ' Orb' : obj.mutation.name + ' ' + obj.name);
+                    
+                    const div = document.createElement('div');
+                    let rarityClass = '';
+                    if (isPotion) {
+                        rarityClass = obj.type === 'luck' ? 'text-indigo-400' : 'text-emerald-400';
+                    } else {
+                        rarityClass = `rarity-${obj.rarity ? obj.rarity.toLowerCase() : obj.mutation.rarity.toLowerCase()}`;
+                    }
+                    
+                    div.className = "market-item-card bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-amber-500 transition-colors flex flex-col justify-between";
+                    div.setAttribute('data-name', searchName.toLowerCase());
+                    
+                    div.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-3xl ${isMutation ? 'orb-glow drop-shadow-lg ' + rarityClass : ''}">${isPotion ? '🧪' : (isMutation ? '🔮' : obj.emoji)}</span>
+                                <div class="flex flex-col items-end">
+                                    <div class="flex items-center gap-1">
+                                        ${obj.isFermented && !isPotion ? '<span class="text-[10px]">🦠</span>' : ''}
+                                        <span class="text-[8px] font-bold uppercase ${rarityClass}">${isPotion ? obj.type + ' boost' : `P. lvl: ${obj.purity || 0} | ${isMutation ? obj.rarity : obj.mutation.rarity}`}</span>
+                                    </div>
+                                    <span class="text-[10px] bg-slate-700 px-2 py-1 rounded text-slate-300 mt-1">${isPotion ? Math.floor(obj.duration/60) + ' Mins' : (isMutation ? 'Extracted Orb' : 'Lv.' + (obj.level || 0))}</span>
+                                </div>
+                            </div>
+                            <p class="font-bold text-white text-xs truncate">${isPotion ? obj.name : (isMutation ? obj.name + ' Orb' : obj.mutation.name + ' ' + obj.name)}</p>
+                            <p class="text-[9px] text-slate-400 mb-1">Sold by: <span class="text-amber-400">${item.seller_name}</span></p>
+                        </div>
+                        <div>
+                            <p class="text-emerald-400 font-mono font-bold text-lg mb-3 mt-2">${this.formatCurrencyDisplay(item.price, currency)}</p>
+                            <button onclick="gameState.buyFromMarket('${item.id}', ${item.price}, '${currency}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-bold transition-all shadow-lg active:scale-95">PURCHASE</button>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+
+
+                // Re-apply filter if user typed while loading
+                const searchVal = document.getElementById('market-search').value;
+                if (searchVal) this.filterMarket(searchVal);
+            },
+
+
+            formatCurrencyDisplay(amount, currency) {
+                if (!currency || currency === 'dollars') return `$${amount.toLocaleString()}`;
+                if (currency === 'extraction_tokens') return `🎫 ${amount} Ext. Token(s)`;
+                if (currency === 'reward_tokens') return `🎁 ${amount} Reward Token(s)`;
+                if (currency === 'loot_egg_tickets') return `🎟️ ${amount} Loot Ticket(s)`;
+                return `${amount} ${currency}`;
+            },
+
+
+            async buyFromMarket(listingId, price, currency = 'dollars') {
+                if (currency === 'dollars' && this.money < price) { this.showToast("Not enough money!", "error"); return; }
+                if (currency === 'extraction_tokens' && this.extractionTokens < price) { this.showToast("Not enough Extraction Tokens!", "error"); return; }
+                if (currency === 'reward_tokens' && this.freeSpins < price) { this.showToast("Not enough Reward Tokens!", "error"); return; }
+                if (currency === 'loot_egg_tickets' && this.lootEggTickets < price) { this.showToast("Not enough Loot Egg Tickets!", "error"); return; }
+
+
+                const { data, error } = await supabase
+                    .from('market_listings')
+                    .delete()
+                    .eq('id', listingId)
+                    .select();
+
+
+                if (error || !data || data.length === 0) {
+                    this.showToast("This listing was already sold or removed!", "error");
+                    this.loadMarketBuy(); 
+                    return;
+                }
+
+
+                // Give player the item
+                if (currency === 'dollars') this.money -= price;
+                else if (currency === 'extraction_tokens') this.extractionTokens -= price;
+                else if (currency === 'reward_tokens') this.freeSpins -= price;
+                else if (currency === 'loot_egg_tickets') this.lootEggTickets -= price;
+                
+                const purchasedItem = data[0].animal_data;
+                purchasedItem.id = crypto.randomUUID(); 
+                const category = purchasedItem.marketCategory || (purchasedItem.type === 'mutation' ? 'mutation' : 'animal');
+                
+                if (category === 'mutation') {
+                    this.extractedMutations.push(purchasedItem);
+                    this.showToast(`Purchased ${purchasedItem.name} Orb from ${data[0].seller_name}!`, "success");
+                } else if (category === 'potion') {
+                    if (this.potions.length >= 100) {
+                        this.showToast("Potion Bag full! Restoring purchase...", "error");
+                        this.money += price;
+                        supabase.from('market_listings').insert([data[0]]).then();
+                        return;
+                    }
+                    this.potions.push(purchasedItem);
+                    this.showToast(`Purchased ${purchasedItem.name} from ${data[0].seller_name}!`, "success");
+                } else {
+                    // Make sure habitats aren't full if buying an animal
+                    if (this.animals.length + this.pendingHatches >= this.getMaxPop()) {
+                        this.showToast("Habitats full! Restoring purchase...", "error");
+                        this.money += price;
+                        // Re-list it immediately since they couldn't fit it (hacky but safe for no-backend loss)
+                        supabase.from('market_listings').insert([data[0]]).then();
+                        return;
+                    }
+                    this.animals.push(purchasedItem);
+                    this.showToast(`Purchased ${purchasedItem.mutation.name} ${purchasedItem.name} from ${data[0].seller_name}!`, "success");
+                }
+                
+                this.loadMarketBuy();
+                this.updateUI();
+            },
+
+
+            listOnMarket(id, category = 'animal') {
+                // Backwards compat for old boolean calls if any were missed
+                if (category === true) category = 'mutation';
+                if (category === false) category = 'animal';
+
+
+                if (this.activeListings && this.activeListings.length >= 3) {
+                    this.showToast("You can only have 3 active listings!", "error");
+                    return;
+                }
+                
+                let item;
+                if (category === 'mutation') item = this.extractedMutations.find(m => m.id == id);
+                else if (category === 'potion') item = this.potions.find(p => p.id == id);
+                else item = this.animals.find(a => a.id == id);
+                
+                if (!item) return;
+
+
+                item.marketCategory = category;
+
+
+                this.itemToEdit = item;
+                this.closeModal('detail-modal');
+                this.closeModal('lab-inventory-modal');
+                this.closeModal('potions-modal');
+                
+                // Populate modal defaults
+                document.getElementById('seller-name-input').value = this.playerName || '';
+                
+                // Suggest a price
+                let suggestedPrice = 1000;
+                if (category === 'mutation') {
+                    const purityMults = [1, 1.5, 2, 2.5, 3, 4];
+                    const pMult = purityMults[item.purity || 0] || 1;
+                    const fermMult = item.isFermented ? 1.25 : 1;
+                    suggestedPrice = Math.floor(item.valueMult * 1000 * pMult * fermMult);
+                } else if (category === 'potion') {
+                    suggestedPrice = item.mult >= 2 ? 250000 : 75000; // Above standard NPC sell rate
+                } else {
+                    suggestedPrice = Math.floor(this.calcVal(item));
+                }
+                
+                document.getElementById('list-price-input').value = suggestedPrice;
+                document.getElementById('list-currency-input').value = 'dollars';
+                
+                this.openModal('list-modal');
+            },
+
+
+            async confirmList() {
+                const nameInput = document.getElementById('seller-name-input').value.trim();
+                const priceInput = parseInt(document.getElementById('list-price-input').value);
+                const currencyInput = document.getElementById('list-currency-input').value;
+
+
+                if (!nameInput) { this.showToast("Please enter your display name.", "error"); return; }
+                if (isNaN(priceInput) || priceInput <= 0) { this.showToast("Enter a valid price.", "error"); return; }
+
+
+                this.playerName = nameInput;
+                const item = this.itemToEdit;
+                const category = item.marketCategory;
+                
+                // Save currency inside item payload to avoid needing a backend table change
+                item.marketCurrency = currencyInput;
+                
+                // Remove from local inventory
+                if (category === 'mutation') {
+                    const idx = this.extractedMutations.findIndex(m => m.id == item.id);
+                    this.extractedMutations.splice(idx, 1);
+                } else if (category === 'potion') {
+                    const idx = this.potions.findIndex(p => p.id == item.id);
+                    this.potions.splice(idx, 1);
+                } else {
+                    const idx = this.animals.findIndex(a => a.id == item.id);
+                    this.animals.splice(idx, 1);
+                }
+                
+                this.closeModal('list-modal');
+                
+                const listing = {
+                    seller_name: this.playerName,
+                    seller_id: this.playerId,
+                    animal_data: item,
+                    price: priceInput
+                };
+
+
+                const { data, error } = await supabase
+                    .from('market_listings')
+                    .insert([listing])
+                    .select();
+
+
+                if (error) {
+                    console.error("Insert Error:", error);
+                    this.showToast("Failed to connect to global market.", "error");
+                    if (category === 'mutation') this.extractedMutations.push(item);
+                    else if (category === 'potion') this.potions.push(item);
+                    else this.animals.push(item);
+                    this.updateUI();
+                    return;
+                }
+
+
+                if (!this.activeListings) this.activeListings = [];
+                this.activeListings.push({ id: data[0].id, animal: item, price: priceInput });
+
+
+                this.showToast("Item is now live on the market!", "success");
+                this.updateUI();
+            },
+
+
+            renderMarketSell() {
+                const view = document.getElementById('market-sell-view');
+                if (!this.activeListings || this.activeListings.length === 0) {
+                    view.innerHTML = `<div class="text-slate-500 italic p-10 text-center flex flex-col items-center">
+                        <span class="text-4xl mb-4">🏷️</span>
+                        You currently have no active listings.
+                    </div>`;
+                    return;
+                }
+
+
+                let html = '<div class="space-y-4">';
+                this.activeListings.forEach(listing => {
+                    const obj = listing.animal;
+                    const category = obj.marketCategory || (obj.type === 'mutation' ? 'mutation' : 'animal');
+                    const isMutation = category === 'mutation';
+                    const isPotion = category === 'potion';
+                    
+                    let rarityClass = '';
+                    let emojiIcon = '';
+                    let nameDisplay = '';
+                    let displayCurrency = obj.marketCurrency || 'dollars';
+                    
+                    if (isPotion) {
+                        rarityClass = obj.type === 'luck' ? 'text-indigo-400' : 'text-emerald-400';
+                        emojiIcon = '🧪';
+                        nameDisplay = `[Potion] ${obj.name}`;
+                    } else if (isMutation) {
+                        rarityClass = `rarity-${obj.rarity.toLowerCase()}`;
+                        emojiIcon = '🔮';
+                        nameDisplay = `[P. lvl ${obj.purity || 0}] ${obj.name} Orb`;
+                    } else {
+                        emojiIcon = obj.emoji;
+                        nameDisplay = `[P. lvl ${obj.purity || 0}] ${obj.mutation.name} ${obj.name}`;
+                    }
+
+
+                    html += `
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-md">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-slate-900 rounded-lg flex items-center justify-center text-3xl border border-slate-700 ${isMutation ? 'orb-glow drop-shadow-lg ' + rarityClass : ''}">
+                                    ${emojiIcon}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white flex items-center gap-1 ${rarityClass}">
+                                        ${obj.isFermented && !isPotion ? '<span title="Fermented">🦠</span>' : ''}
+                                        ${nameDisplay}
+                                    </p>
+                                    <p class="text-emerald-400 font-mono font-bold">${this.formatCurrencyDisplay(listing.price, displayCurrency)}</p>
+                                </div>
+                            </div>
+                            <button onclick="gameState.cancelListing('${listing.id}')" class="px-4 py-3 bg-red-900/40 hover:bg-red-800 rounded-lg font-bold text-[10px] text-red-200 transition-colors border border-red-500/30">CANCEL</button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                view.innerHTML = html;
+            },
+
+
+            async cancelListing(listingId) {
+                const { error } = await supabase
+                    .from('market_listings')
+                    .delete()
+                    .eq('id', listingId)
+                    .eq('seller_id', this.playerId);
+
+
+                if (error) {
+                    this.showToast("Failed to remove listing from server.", "error");
+                    return;
+                }
+
+
+                const listIdx = this.activeListings.findIndex(l => l.id == listingId);
+                if (listIdx > -1) {
+                    const listing = this.activeListings.splice(listIdx, 1)[0];
+                    const category = listing.animal.marketCategory || (listing.animal.type === 'mutation' ? 'mutation' : 'animal');
+                    
+                    if (category === 'mutation') {
+                        this.extractedMutations.push(listing.animal);
+                    } else if (category === 'potion') {
+                        this.potions.push(listing.animal);
+                    } else {
+                        this.animals.push(listing.animal);
+                    }
+                    this.showToast("Listing cancelled. Item returned.", "info");
+                }
+                
                 this.renderMarketSell();
+                this.updateUI();
             },
 
-            acceptOffer() {
-                this.money += Math.floor(this.currentOffer.price);
-                this.activeListing = null; this.currentOffer = null;
-                this.showToast("Animal Sold!", "success"); this.updateUI(); this.switchMarketTab('buy');
+
+            async checkSoldListings() {
+                if (!this.activeListings || this.activeListings.length === 0) return;
+                
+                const { data, error } = await supabase
+                    .from('market_listings')
+                    .select('id')
+                    .eq('seller_id', this.playerId);
+                    
+                if (error || !data) return;
+                const activeIdsOnServer = data.map(d => d.id);
+                
+                const profitMult = this.activeBoosts.profit.mult || 1;
+                
+                for (let i = this.activeListings.length - 1; i >= 0; i--) {
+                    const listing = this.activeListings[i];
+                    if (!activeIdsOnServer.includes(listing.id)) {
+                        let earned = listing.price;
+                        let currencyType = listing.animal.marketCurrency || 'dollars';
+                        let displayMsg = '';
+
+
+                        if (currencyType === 'dollars') {
+                            earned *= profitMult;
+                            this.money += earned;
+                            displayMsg = `$${earned.toLocaleString()}`;
+                        } else if (currencyType === 'extraction_tokens') {
+                            this.extractionTokens += earned;
+                            displayMsg = `${earned} Extraction Token(s)`;
+                        } else if (currencyType === 'reward_tokens') {
+                            this.freeSpins += earned;
+                            displayMsg = `${earned} Reward Token(s)`;
+                        } else if (currencyType === 'loot_egg_tickets') {
+                            this.lootEggTickets += earned;
+                            displayMsg = `${earned} Loot Egg Ticket(s)`;
+                        }
+
+
+                        const category = listing.animal.marketCategory || (listing.animal.type === 'mutation' ? 'mutation' : 'animal');
+                        
+                        let name = listing.animal.name;
+                        if (category === 'mutation') name = `[P. lvl ${listing.animal.purity || 0}] ${name} Orb`;
+                        else if (category === 'potion') name = `[Potion] ${name}`;
+                        else name = `[P. lvl ${listing.animal.purity || 0}] ${name}`;
+                        
+                        this.showToast("Your listing was purchased!", "success");
+                        this.showToast(`Earned ${displayMsg}!`, "success");
+                        this.activeListings.splice(i, 1);
+                    }
+                }
+                
+                if (this.marketTab === 'sell' && !document.getElementById('market-modal').classList.contains('hidden')) {
+                    this.renderMarketSell();
+                }
+                this.updateUI();
             },
 
-            declineOffer() {
-                this.currentOffer = null;
-                const rank = RARITY_LEVELS[this.activeListing.mutation.rarity] || 0;
-                this.nextOfferTime = Date.now() + (60000 * (1 + rank));
-                this.renderMarketSell();
-            },
-
-            cancelListing() {
-                this.animals.push(this.activeListing);
-                this.activeListing = null; this.currentOffer = null;
-                this.updateUI(); this.switchMarketTab('buy');
-            },
 
             sellAnimalInstantly(id) {
                 const idx = this.animals.findIndex(a => a.id == id);
                 this.money += Math.floor(this.calcVal(this.animals[idx]));
                 this.animals.splice(idx, 1);
-                document.getElementById('detail-modal').classList.add('hidden');
+                this.closeModal('detail-modal');
                 this.updateUI();
             },
+
+
+            // --- WHEEL LOGIC (Hourly Reward Drop) ---
+            openWheel() {
+                document.getElementById('wheel-notif').classList.add('hidden');
+                this.openModal('wheel-modal');
+                this.updateUI();
+            },
+
+
+            spinWheel() {
+                if (this.freeSpins <= 0 || this.isSpinning) return;
+                
+                this.isSpinning = true;
+                this.freeSpins--;
+                this.updateUI();
+                
+                const prizes = [
+                    { name: "Double Money", emoji: "💰", chance: 0.20 },
+                    { name: "+6 Zoo Slots", emoji: "🏡", chance: 0.24 },
+                    { name: "1.5x Luck (10m)", emoji: "🍀", chance: 0.20 },
+                    { name: "Extraction Token", emoji: "🎫", chance: 0.15 },
+                    { name: "2x Luck (5m)", emoji: "✨", chance: 0.10 },
+                    { name: "1.5x Profit (10m)", emoji: "📈", chance: 0.05 },
+                    { name: "Leviathan", emoji: "🌊🐉", chance: 0.05 },
+                    { name: "Loot Egg Ticket", emoji: "🎟️", chance: 0.01 }
+                ];
+                
+                const display = document.getElementById('wheel-display');
+                const resultEmoji = document.getElementById('wheel-result-emoji');
+                const resultText = document.getElementById('wheel-result-text');
+                
+                let roll = Math.random();
+                let selectedPrize = prizes[0];
+                for (let p of prizes) {
+                    if (roll < p.chance) { selectedPrize = p; break; }
+                    roll -= p.chance;
+                }
+                
+                // Animation
+                let spins = 0;
+                const spinInterval = setInterval(() => {
+                    const randomVisual = prizes[Math.floor(Math.random() * prizes.length)];
+                    resultEmoji.innerText = randomVisual.emoji;
+                    resultText.innerText = randomVisual.name;
+                    display.style.transform = `scale(${1 + (spins % 2) * 0.05})`;
+                    
+                    spins++;
+                    if (spins > 20) {
+                        clearInterval(spinInterval);
+                        display.style.transform = "scale(1.1)";
+                        display.classList.add('border-pink-500', 'bg-pink-900/30');
+                        
+                        resultEmoji.innerText = selectedPrize.emoji;
+                        resultText.innerText = selectedPrize.name;
+                        
+                        setTimeout(() => {
+                            this.awardPrize(selectedPrize.name);
+                            display.style.transform = "scale(1)";
+                            display.classList.remove('border-pink-500', 'bg-pink-900/30');
+                            this.isSpinning = false;
+                            this.updateUI();
+                        }, 1500);
+                    }
+                }, 100);
+            },
+            
+            awardPrize(prizeName) {
+                switch(prizeName) {
+                    case "Double Money":
+                        this.money *= 2;
+                        this.showToast("Money Doubled!", "special");
+                        break;
+                    case "+6 Zoo Slots":
+                        this.upgrades.pop.level += 2;
+                        this.showToast("+6 Capacity added permanently!", "success");
+                        break;
+                    case "1.5x Luck (10m)":
+                        this.addPotion("1.5x Luck (10m)", "luck", 1.5, 600);
+                        this.showToast("Won 1.5x Luck Potion! Saved to Potion Bag.", "success");
+                        break;
+                    case "Extraction Token":
+                        this.extractionTokens++;
+                        this.showToast("Gained 1 Free Extraction Token!", "success");
+                        break;
+                    case "2x Luck (5m)":
+                        this.addPotion("2x Luck (5m)", "luck", 2.0, 300);
+                        this.showToast("Won 2x Luck Potion! Saved to Potion Bag.", "success");
+                        break;
+                    case "1.5x Profit (10m)":
+                        this.addPotion("1.5x Profit (10m)", "profit", 1.5, 600);
+                        this.showToast("Won 1.5x Profit Potion! Saved to Potion Bag.", "success");
+                        break;
+                    case "Loot Egg Ticket":
+                        this.lootEggTickets++;
+                        this.showToast("Won 1 Free Loot Egg Ticket!", "special");
+                        break;
+                    case "Leviathan":
+                        if (this.animals.length >= this.getMaxPop()) {
+                            this.showToast("Habitats full! Leviathan converted to $100,000", "error");
+                            this.money += 100000;
+                        } else {
+                            const spec = SPECIES.find(s => s.name === "Leviathan");
+                            const normalMut = MUTATIONS.find(m => m.id === "normal");
+                            this.animals.push({ id: crypto.randomUUID(), ...spec, mutation: normalMut, level: 0, exp: 0, acquiredAt: Date.now() });
+                            this.showToast("You won a Leviathan!", "special");
+                        }
+                        break;
+                }
+            },
+
+
+            // --- KEYBOARD EASTER EGG ---
+            setupKeyboardEgg() {
+                const activeKeys = {};
+                window.addEventListener('keydown', (e) => {
+                    activeKeys[e.key.toLowerCase()] = true;
+                    // Check combination: 1 + w + u + i + o
+                    if (activeKeys['1'] && activeKeys['w'] && activeKeys['u'] && activeKeys['i'] && activeKeys['o']) {
+                        const now = Date.now();
+                        // Cooldown is 1 hour (3600000 ms)
+                        if (now - this.lastEasterEggTime >= 3600000) {
+                            this.lastEasterEggTime = now;
+                            this.freeSpins++;
+                            this.showToast("Easter Egg Activated! +1 Free Reward Drop!", "special");
+                            this.saveData();
+                            this.updateUI();
+                        } else {
+                            const diff = 3600000 - (now - this.lastEasterEggTime);
+                            const minLeft = Math.ceil(diff / 60000);
+                            this.showToast(`Easter Egg on cooldown! (${minLeft}m left)`, "error");
+                        }
+                    }
+                });
+                window.addEventListener('keyup', (e) => {
+                    delete activeKeys[e.key.toLowerCase()];
+                });
+            },
+
+
+            // --- LOOT EGG OPEN LOGIC ---
+            openBillionDollarEgg() {
+                if (this.billionEggCooldown > 0) {
+                    this.showToast(`Egg is on cooldown!`, "error");
+                    return;
+                }
+                
+                let usedTicket = false;
+                if (this.lootEggTickets > 0) {
+                    usedTicket = true;
+                } else if (this.money >= 1000000000) {
+                    usedTicket = false;
+                } else {
+                    this.showToast(`Need $1,000,000,000 or 1 Loot Ticket!`, "error");
+                    return;
+                }
+
+
+                // Deduct cost & trigger hatch cooldown
+                if (usedTicket) {
+                    this.lootEggTickets--;
+                    this.showToast(`Used 1 Loot Egg Ticket!`, "info");
+                } else {
+                    this.money -= 1000000000;
+                }
+                
+                this.billionEggCooldown = 1500; // 25 minutes = 1500 seconds
+
+
+                document.getElementById('hatch-overlay').classList.remove('hidden');
+                let p = 0;
+                const int = setInterval(() => {
+                    p += 5;
+                    document.getElementById('hatch-progress').style.width = p + '%';
+                    if (p >= 100) {
+                        clearInterval(int);
+                        document.getElementById('hatch-overlay').classList.add('hidden');
+                        document.getElementById('hatch-progress').style.width = '0%';
+                        
+                        this.rollBillionEggRewards();
+                    }
+                }, 30);
+            },
+
+
+            rollBillionEggRewards() {
+                const roll = Math.random() * 100; // 0.00 to 100.00
+
+
+                if (roll < 20) {
+                    // 20% Chance: 2x luck potion for 10 minutes
+                    this.addPotion("2x Luck (10m)", "luck", 2.0, 600);
+                    this.showToast("Hatched: 2x Luck Potion (10m)!", "special");
+                } 
+                else if (roll < 45) {
+                    // 25% Chance: 1.5x luck potion for 10 minutes
+                    this.addPotion("1.5x Luck (10m)", "luck", 1.5, 600);
+                    this.showToast("Hatched: 1.5x Luck Potion (10m)!", "success");
+                } 
+                else if (roll < 50) {
+                    // 5% Chance: Dinosaur
+                    if (this.animals.length >= this.getMaxPop()) {
+                        this.showToast("Habitats full! Converted Dinosaur to $750k", "error");
+                        this.money += 750000;
+                    } else {
+                        const spec = SPECIES.find(s => s.name === "Dinosaur");
+                        const normalMut = MUTATIONS.find(m => m.id === "normal");
+                        this.animals.push({ id: crypto.randomUUID(), ...spec, mutation: normalMut, level: 0, exp: 0, acquiredAt: Date.now() });
+                        this.showToast("Hatched a mighty Dinosaur!", "special");
+                    }
+                } 
+                else if (roll < 80) {
+                    // 30% Chance: $1.5B
+                    this.money += 1500000000;
+                    this.showToast("Hatched: $1.5 Billion Cash Payout!", "success");
+                } 
+                else if (roll < 90) {
+                    // 10% Chance: Cosmic Mutation Orb, purity lvl 1, fermented
+                    const cosmicMut = MUTATIONS.find(m => m.id === "cosmic");
+                    this.extractedMutations.push({
+                        type: 'mutation',
+                        id: crypto.randomUUID(),
+                        mutationId: cosmicMut.id,
+                        name: cosmicMut.name,
+                        rarity: cosmicMut.rarity,
+                        valueMult: cosmicMut.valueMult,
+                        extractedAt: Date.now(),
+                        isFermented: true,
+                        purity: 1
+                    });
+                    this.showToast("Hatched: Fermented Cosmic Orb [P. Lvl 1]!", "special");
+                } 
+                else if (roll < 97) {
+                    // 7% Chance: Astral Mutation Orb
+                    const astralMut = MUTATIONS.find(m => m.id === "astral");
+                    this.extractedMutations.push({
+                        type: 'mutation',
+                        id: crypto.randomUUID(),
+                        mutationId: astralMut.id,
+                        name: astralMut.name,
+                        rarity: astralMut.rarity,
+                        valueMult: astralMut.valueMult,
+                        extractedAt: Date.now(),
+                        isFermented: false,
+                        purity: 1
+                    });
+                    this.showToast("Hatched: Astral Orb [P. Lvl 1]!", "special");
+                } 
+                else if (roll < 99) {
+                    // 2% Chance: Supernova Orb, purity lvl 2, fermented
+                    const supernovaMut = MUTATIONS.find(m => m.id === "supernova");
+                    this.extractedMutations.push({
+                        type: 'mutation',
+                        id: crypto.randomUUID(),
+                        mutationId: supernovaMut.id,
+                        name: supernovaMut.name,
+                        rarity: supernovaMut.rarity,
+                        valueMult: supernovaMut.valueMult,
+                        extractedAt: Date.now(),
+                        isFermented: true,
+                        purity: 2
+                    });
+                    this.showToast("Hatched: Fermented Supernova Orb [P. Lvl 2]!", "special");
+                } 
+                else {
+                    // 1% Chance: Manifest Energy Orb, fermented, purity level 1
+                    const pureEnergyMut = MUTATIONS.find(m => m.id === "pure_energy");
+                    this.extractedMutations.push({
+                        type: 'mutation',
+                        id: crypto.randomUUID(),
+                        mutationId: pureEnergyMut.id,
+                        name: pureEnergyMut.name,
+                        rarity: pureEnergyMut.rarity,
+                        valueMult: pureEnergyMut.valueMult,
+                        extractedAt: Date.now(),
+                        isFermented: true,
+                        purity: 1
+                    });
+                    this.showToast("HATCHED AMAZING REWARD: Fermented Manifest Energy Orb [P. Lvl 1]!!!", "special");
+                }
+                
+                this.updateUI();
+                this.saveData();
+            },
+
 
             // --- UTILS ---
             hatchEgg(luckOverride = 0) {
                 const tier = EGG_TIERS[this.selectedEggTier];
-                if (luckOverride === 0) {
-                    if (this.money < tier.cost) return;
-                    this.money -= tier.cost;
+                if (luckOverride === 0 && this.money < tier.cost) return;
+                if (this.animals.length + this.pendingHatches >= this.getMaxPop()) {
+                    this.showToast("Habitats are full!", "error");
+                    return;
                 }
-                if (this.animals.length >= this.maxPop) return;
+                if (luckOverride === 0) this.money -= tier.cost;
+
+
+                this.pendingHatches++;
+                const hatchBtn = document.getElementById('hatch-btn');
+                hatchBtn.disabled = true;
+                hatchBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 
                 document.getElementById('hatch-overlay').classList.remove('hidden');
                 let p = 0;
@@ -783,37 +2544,119 @@
                         clearInterval(int);
                         document.getElementById('hatch-overlay').classList.add('hidden');
                         document.getElementById('hatch-progress').style.width = '0%';
-                        this.generateAnimal(luckOverride || tier.luck * (1 + (this.upgrades.luck.level - 1) * 0.15));
+                        
+                        this.pendingHatches--;
+                        hatchBtn.disabled = false;
+                        hatchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        
+                        const potionLuck = this.activeBoosts.luck.mult || 1;
+                        this.generateAnimal(luckOverride || (tier.luck * (1 + (this.upgrades.luck.level - 1) * 0.15) * potionLuck));
                     }
                 }, 30);
             },
 
+
+            getSpeciesTable() {
+                const luckLvl = this.upgrades.luck.level || 1;
+                const tier = this.selectedEggTier || 0;
+                const baseLuckMult = 1 + (luckLvl - 1) * 0.15;
+                const eggLuck = EGG_TIERS[tier].luck;
+                const potionLuck = this.activeBoosts.luck.mult || 1;
+                const totalLuck = baseLuckMult * eggLuck * potionLuck;
+                
+                let table = [];
+                
+                // Standard scaling for all pets based on luck
+                let modifiedWeights = SPECIES.map((s, i) => {
+                    let power = i / SPECIES.length; 
+                    return s.weight * Math.pow(totalLuck, power * 2.0);
+                });
+                
+                let sumModified = modifiedWeights.reduce((a, b) => a + b, 0);
+                
+                SPECIES.forEach((s, i) => {
+                    table.push({
+                        species: s,
+                        chance: modifiedWeights[i] / sumModified
+                    });
+                });
+                
+                // Manual overrides for the absolute top tiers to ensure strict descending rarity
+                let dinoIdx = SPECIES.findIndex(s => s.name === "Dinosaur");
+                let rgIdx = SPECIES.findIndex(s => s.name === "Reality Glitch");
+                let angelIdx = SPECIES.findIndex(s => s.name === "Angel");
+                let dogIdx = SPECIES.findIndex(s => s.name === "Dog");
+                
+                if (dinoIdx > -1 && rgIdx > -1 && angelIdx > -1 && dogIdx > -1) {
+                    let dinoChance = table[dinoIdx].chance;
+                    
+                    // User constraint: Reality Glitch reaches ~1% max at luck 100, +0.2% per tier
+                    let requestedRgMax = (luckLvl / 100) * 0.01 + (tier * 0.002);
+                    
+                    // MUST be strictly rarer than Dinosaur to prevent the "chances going up" glitch
+                    let rgChance = Math.min(dinoChance * 0.5, requestedRgMax);
+                    
+                    // Enforce an absolute minimum so it's always mathematically possible
+                    rgChance = Math.max(0.00000005, rgChance); 
+                    
+                    let angelChance = rgChance * 0.2;
+                    let dogChance = angelChance * 0.2;
+                    
+                    let fixedSum = rgChance + angelChance + dogChance;
+                    let originalTopSum = table[rgIdx].chance + table[angelIdx].chance + table[dogIdx].chance;
+                    let scale = (1 - fixedSum) / (1 - originalTopSum);
+                    
+                    for(let i = 0; i <= dinoIdx; i++) {
+                        table[i].chance *= scale;
+                    }
+                    
+                    table[rgIdx].chance = rgChance;
+                    table[angelIdx].chance = angelChance;
+                    table[dogIdx].chance = dogChance;
+                }
+                
+                return table;
+            },
+
+
             generateAnimal(luck) {
-                const totalW = SPECIES.reduce((s, x) => s + x.weight, 0);
-                let rW = Math.random() * totalW;
-                let spec = SPECIES[0];
-                for(let s of SPECIES) { if(rW < s.weight) { spec = s; break; } rW -= s.weight; }
+                const speciesTable = this.getSpeciesTable();
+                let rW = Math.random();
+                let spec = speciesTable[0].species;
+                
+                for (let entry of speciesTable) {
+                    if (rW < entry.chance) { spec = entry.species; break; }
+                    rW -= entry.chance;
+                }
+                
                 let mut = MUTATIONS[0];
-                for(let m of [...MUTATIONS].reverse()) {
+                for (let m of [...MUTATIONS].reverse()) {
                     if (m.id !== 'normal' && Math.random() < (m.chance * luck)) { mut = m; break; }
                 }
-                this.animals.push({ id: Date.now() + Math.random(), ...spec, mutation: mut, level: 0, exp: 0, acquiredAt: Date.now() });
-                if(!this.discoveredMutations.includes(mut.id)) {
+
+
+                this.animals.push({ id: crypto.randomUUID(), ...spec, mutation: mut, level: 0, exp: 0, acquiredAt: Date.now() });
+                
+                if (!this.discoveredMutations.includes(mut.id)) {
                     this.discoveredMutations.push(mut.id);
-                    this.money += mut.reward;
+                    const profitMult = this.activeBoosts.profit.mult || 1;
+                    this.money += (mut.reward * profitMult);
                     document.getElementById('journal-notif').classList.remove('hidden');
                     this.updateJournal();
                 }
                 this.updateUI();
             },
 
+
             doMaintenance(type) {
                 const m = this.maintenance[type];
                 if (m.cooldown > 0) return;
-                this.money += Math.floor(m.pay * (1 + (this.upgrades.maint.level - 1) * 0.25));
+                const profitMult = this.activeBoosts.profit.mult || 1;
+                this.money += Math.floor(m.pay * (1 + (this.upgrades.maint.level - 1) * 0.25)) * profitMult;
                 m.cooldown = m.max;
                 this.updateMaintenanceUI(type);
             },
+
 
             updateMaintenanceUI(type) {
                 const m = this.maintenance[type];
@@ -821,6 +2664,7 @@
                 document.getElementById(`cooldown-${type}`).style.height = pct + '%';
                 document.getElementById(`text-${type}`).innerText = m.cooldown > 0 ? m.cooldown + 's' : 'Ready';
             },
+
 
             updateJournal() {
                 const list = document.getElementById('journal-list');
@@ -834,45 +2678,71 @@
                 });
             },
 
+
             sortByRarity() { this.animals.sort((a, b) => RARITY_LEVELS[b.mutation.rarity] - RARITY_LEVELS[a.mutation.rarity]); this.updateUI(); },
+
 
             showToast(msg, type="info") {
                 const t = document.createElement('div');
-                t.className = `bg-slate-800 text-white px-4 py-2 rounded-lg border border-slate-700 text-xs font-bold animate-bounce`;
+                t.className = `bg-slate-800 text-white px-4 py-2 rounded-lg border border-slate-700 text-xs font-bold animate-bounce z-[200]`;
                 if(type === "success") t.classList.add('border-emerald-500');
                 if(type === "error") t.classList.add('border-red-500');
+                if(type === "special") t.classList.add('border-purple-500');
                 t.innerText = msg;
                 document.getElementById('toast-container').appendChild(t);
                 setTimeout(() => t.remove(), 3000);
             },
 
+
             setupListeners() {
-                document.getElementById('hatch-btn').onclick = () => this.hatchEgg();
-                document.getElementById('upg-luck').onclick = () => this.upgrade('luck');
-                document.getElementById('upg-profit').onclick = () => this.upgrade('profit');
-                document.getElementById('upg-maint').onclick = () => this.upgrade('maint');
-                document.getElementById('lab-breed-btn').onclick = () => this.doBreed();
-                document.getElementById('lab-transfer-btn').onclick = () => this.doTransfer();
-                document.getElementById('open-journal').onclick = () => { document.getElementById('journal-modal').classList.remove('hidden'); document.getElementById('journal-notif').classList.add('hidden'); };
-                document.getElementById('close-journal').onclick = () => document.getElementById('journal-modal').classList.add('hidden');
-                document.getElementById('open-market').onclick = () => { document.getElementById('market-modal').classList.remove('hidden'); document.getElementById('market-notif').classList.add('hidden'); this.switchMarketTab('buy'); };
-                document.getElementById('close-market').onclick = () => document.getElementById('market-modal').classList.add('hidden');
-                document.getElementById('open-cryo').onclick = () => this.openCryo();
-                document.getElementById('close-cryo').onclick = () => document.getElementById('cryo-modal').classList.add('hidden');
-                document.getElementById('close-detail').onclick = () => document.getElementById('detail-modal').classList.add('hidden');
+                // Bulletproof helper so a single missing element never crashes the game
+                const addClick = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+                
+                addClick('hatch-btn', () => this.hatchEgg());
+                addClick('upg-luck', () => this.upgrade('luck'));
+                addClick('upg-profit', () => this.upgrade('profit'));
+                addClick('upg-maint', () => this.upgrade('maint'));
+                addClick('upg-pop', () => this.upgrade('pop'));
+                
+                // Lab buttons
+                addClick('lab-extract-btn', () => this.doExtract());
+                addClick('lab-breed-btn', () => this.doBreed());
+                addClick('lab-transfer-btn', () => this.doTransfer());
+                
+                // Modals
+                addClick('open-journal', () => { this.openModal('journal-modal'); document.getElementById('journal-notif').classList.add('hidden'); });
+                addClick('close-journal', () => this.closeModal('journal-modal'));
+                addClick('open-market', () => { this.openModal('market-modal'); document.getElementById('market-notif').classList.add('hidden'); this.switchMarketTab('buy'); });
+                addClick('close-market', () => this.closeModal('market-modal')); // Fails safely if missing now
+                addClick('open-cryo', () => this.openCryo());
+                addClick('close-cryo', () => this.closeModal('cryo-modal'));
+                addClick('close-detail', () => { this.closeModal('detail-modal'); this.currentlyViewingAnimal = null; });
+                
+                // Billion egg button
+                addClick('egg-tier-4', () => this.openBillionDollarEgg());
+
+
                 EGG_TIERS.forEach(t => {
-                    document.getElementById(`egg-tier-${t.id}`).onclick = () => {
+                    addClick(`egg-tier-${t.id}`, () => {
                         this.selectedEggTier = t.id;
                         document.querySelectorAll('.egg-selector button').forEach(b => b.classList.remove('active'));
-                        document.getElementById(`egg-tier-${t.id}`).classList.add('active');
-                        document.getElementById('hatch-btn').innerText = `BUY EGG ($${t.cost.toLocaleString()})`;
-                    };
+                        const btn = document.getElementById(`egg-tier-${t.id}`);
+                        if (btn) btn.classList.add('active');
+                        const hatchBtn = document.getElementById('hatch-btn');
+                        if (hatchBtn) hatchBtn.innerText = `BUY EGG ($${t.cost.toLocaleString()})`;
+                    });
                 });
-                window.gameState = this;
             }
         };
 
-        window.onload = () => gameState.init();
+
+        // Run immediately to ensure everything loads flawlessly
+        gameState.init();
     </script>
 </body>
+
+
 </html>
+
+
+
